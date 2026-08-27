@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>消防通 · 在线刷题</title>
+  <link rel="stylesheet" href="assets/css/style.css?v=2" />
+  <style>
+    .home-hero { padding: 20px 18px 4px; }
+    .home-hero h1 { font-size: 21px; margin: 0 0 6px; }
+    .home-hero p { color: var(--text-2); font-size: 13px; margin: 0; }
+    .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px 18px; }
+    .mode-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; align-items: center; text-align: center; transition: .15s; }
+    .mode-card:active { transform: scale(.97); }
+    .mode-card.lock { background: linear-gradient(135deg,#fff7ed,#fff1e6); border-color:#fed7aa; }
+    .mode-card .emo { font-size: 30px; }
+    .mode-card .nm { font-weight: 600; font-size: 15px; }
+    .mode-card .ct { font-size: 12px; color: var(--text-2); }
+    .unlock-banner { margin: 4px 18px 10px; background: linear-gradient(135deg,#ecfdf5,#d1fae5); border:1px solid #6ee7b7; border-radius:14px; padding:12px 16px; font-size:13px; color:#065f46; }
+    .q-type.single { background:#e0edff; color:#1d4ed8; }
+    .q-type.multiple { background:#ffe6cc; color:#c2410c; }
+    .q-type.judge { background:#dcfce7; color:#15803d; }
+    .opt.correct { background:#dcfce7; border-color:#22c55e; }
+    .opt.correct.study { background:#bbf7d0; border-color:#16a34a; }
+    .opt.correct.study .lab { font-weight:700; }
+    .opt.wrong { background:#fee2e2; border-color:#ef4444; }
+    .opt.sel { border-color: var(--primary); background:#fef3f2; }
+    .hidden { display:none !important; }
+    .result { text-align:center; padding: 30px 20px; }
+    .result .score { font-size: 46px; font-weight: 700; color: var(--primary); }
+    .star { float:right; font-size:20px; cursor:pointer; color:#cbd5e1; user-select:none; }
+    .star.on { color:#f59e0b; }
+    .timer { text-align:center; font-size:14px; font-weight:700; color:#c2410c; padding:8px 0; }
+    .home-cta { padding: 0 18px 24px; }
+    .home-cta .btn { width:100%; }
+    /* 方向切换条 */
+    .dir-tabs { background:#fff; border-bottom:1px solid var(--border); padding-top:6px; }
+    .dtab { flex:1; text-align:center; padding:10px 0; font-size:14px; font-weight:600; color:var(--text-2); cursor:pointer; border-bottom:2px solid transparent; transition:.15s; }
+    .dtab.on { color:var(--primary); border-bottom-color:var(--primary); }
+    /* 题型选择页 */
+    .type-hero { padding: 16px 18px 4px; }
+    .type-hero h1 { font-size: 19px; margin: 0 0 4px; }
+    .type-hero p { color: var(--text-2); font-size: 13px; margin: 0; }
+    .typechips { display:flex; gap:10px; padding:16px 18px 6px; }
+    .chip { flex:1; min-width:0; padding:18px 6px; text-align:center; border:1px solid var(--border); border-radius:14px; background:#fff; cursor:pointer; font-weight:600; font-size:14px; transition:.15s; }
+    .chip .cn { font-size:12px; color:var(--text-2); font-weight:400; margin-top:4px; }
+    .chip.on { background:var(--primary); color:#fff; border-color:var(--primary); }
+    .chip.on .cn { color:rgba(255,255,255,.85); }
+    .type-note { padding: 8px 18px 0; font-size:12.5px; color:var(--text-2); }
+    /* 答题页动作行 */
+    .act-row { display:flex; gap:12px; padding:14px 18px 24px; position:sticky; bottom:0; background:#fff; border-top:1px solid var(--border); box-shadow:0 -2px 8px rgba(0,0,0,0.05); z-index:10; }
+    .act-row .btn { flex:1; }
+    .btn:disabled { opacity:.4; pointer-events:none; }
+    .mode-choice { display:flex; gap:10px; padding:6px 18px 6px; }
+    .mode-choice .chip { flex:1; min-width:0; padding:14px 6px; text-align:center; border:1px solid var(--border); border-radius:14px; background:#fff; cursor:pointer; font-weight:600; font-size:14px; transition:.15s; }
+    .mode-choice .chip .cn { font-size:12px; color:var(--text-2); font-weight:400; margin-top:4px; }
+    .mode-choice .chip.on { background:var(--primary); color:#fff; border-color:var(--primary); }
+    .mode-choice .chip.on .cn { color:rgba(255,255,255,.85); }
+    .q-actions-hint { font-size:12px; color:var(--text-2); text-align:center; padding:0 18px 8px; }
+    .score-detail { max-width:320px; margin:14px auto 18px; text-align:left; background:#f8fafc; border-radius:12px; padding:12px 14px; font-size:13px; }
+    .score-detail .row { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px dashed #e2e8f0; }
+    .score-detail .row:last-child { border-bottom:none; }
+    .pass-tag { display:inline-block; padding:4px 12px; border-radius:999px; font-size:13px; font-weight:700; margin:8px 0 4px; }
+    .pass-tag.ok { background:#dcfce7; color:#15803d; }
+    .pass-tag.no { background:#fee2e2; color:#b91c1c; }
+  </style>
+</head>
+<body>
+  <script>if (new URLSearchParams(location.search).has('mp')) document.body.classList.add('mp-mode')</script>
+
+  <!-- 首页：模式选择 -->
+  <section id="home">
+    <nav class="nav">
+      <div class="nav-brand"><span class="nav-logo">消</span>消防通</div>
+      <a class="nav-menu" href="index.html">首页 ›</a>
+    </nav>
+    <div id="unlockBanner"></div>
+    <div class="dir-tabs" id="dirTabs" style="display:flex;gap:8px;padding:8px 18px 0">
+      <div class="dtab" data-dir="monitor">监控方向</div>
+      <div class="dtab" data-dir="maintain">维保方向</div>
+    </div>
+    <div class="home-hero">
+      <h1 id="homeTitle">在线刷题</h1>
+      <p id="homeSub">监控方向 · 中级消防设施操作员</p>
+    </div>
+    <div class="mode-grid" id="modeGrid"></div>
+    <div class="home-cta" id="homeCta"></div>
+  </section>
+
+  <!-- 题型选择 -->
+  <section id="typeselect" class="hidden">
+    <nav class="nav">
+      <div class="nav-brand"><span class="nav-logo">消</span>消防通</div>
+      <a class="nav-menu" id="backHome2" href="#">‹ 返回</a>
+    </nav>
+    <div class="type-hero">
+      <h1 id="typeTitle">选择题型</h1>
+      <p id="typeSub">先挑想练的题型，再开始</p>
+    </div>
+    <div class="typechips" id="typeChips"></div>
+    <div class="type-note" id="typeNote"></div>
+    <div style="padding:16px 18px 4px; font-size:13px; color:var(--text-2); font-weight:600;">再选模式</div>
+    <div class="mode-choice" id="modeChoice"></div>
+    <div class="type-note" id="modeNote">练习模式：先做题再对答案；学习模式：直接看答案与解析。</div>
+    <div class="act-row">
+      <button class="btn btn-primary" id="startBtn" style="flex:1">开始练习 ›</button>
+    </div>
+  </section>
+
+  <!-- 答题 / 学习 / 考试 -->
+  <section id="quiz" class="hidden">
+    <nav class="nav">
+      <div class="nav-brand"><span class="nav-logo">消</span>消防通</div>
+      <a class="nav-menu" id="backBtn" href="#">‹ 返回</a>
+    </nav>
+    <div class="timer hidden" id="timer"></div>
+    <div class="q-progress" id="progress" style="text-align:center;font-size:13px;color:var(--text-2);padding:10px 0"></div>
+    <div class="q-wrap" id="qBox"></div>
+    <div class="q-actions-hint" id="submitHint"></div>
+    <div class="act-row">
+      <button class="btn btn-outline" id="prevBtn">‹ 上一题</button>
+      <button class="btn btn-primary" id="nextBtn">下一题 ›</button>
+    </div>
+  </section>
+
+  <!-- 成绩 -->
+  <section id="result" class="hidden">
+    <nav class="nav">
+      <div class="nav-brand"><span class="nav-logo">消</span>消防通</div>
+      <a class="nav-menu" href="index.html">首页 ›</a>
+    </nav>
+    <div class="result" id="resultBox"></div>
+  </section>
+
+  <script src="assets/js/bank.js"></script>
+  <script src="assets/js/bank_maintain.js"></script>
+  <script>
+    // 方向选择：URL ?direction=monitor/maintain，默认 monitor
+    var params = new URLSearchParams(location.search)
+    var DIRECTION = (params.get('direction') || 'monitor').toLowerCase()
+    if (DIRECTION !== 'monitor' && DIRECTION !== 'maintain') DIRECTION = 'monitor'
+    var IS_MP = params.has('mp')
+
+    function loadBank(direction) {
+      if (direction === 'maintain' && window.BANK_MAINTAIN && window.BANK_MAINTAIN.chapters) return window.BANK_MAINTAIN
+      return window.BANK
+    }
+    var BANK = loadBank(DIRECTION)
+    var CHAPTERS = BANK.chapters
+    var ALL = []
+    CHAPTERS.forEach(function (c) { c.questions.forEach(function (q) { ALL.push(q) }) })
+    // 免费试做：每个题型前 10 题（固定）→ 单+多+判各10 = 每方向30题
+    var FREE_PER_TYPE = 10
+    var FREE = []
+    ;['single', 'multiple', 'judge'].forEach(function (t) {
+      var ch = CHAPTERS.filter(function (c) { return c.type === t })[0]
+      if (ch) FREE = FREE.concat(ch.questions.slice(0, FREE_PER_TYPE))
+    })
+
+    function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var x = a[i]; a[i] = a[j]; a[j] = x } return a }
+    function getDirUnlock(d) { try { return JSON.parse(localStorage.getItem('xf_unlock_' + d) || 'null') } catch (e) { return null } }
+    function dirActive(d) { var u = getDirUnlock(d); return !!(u && u.untilTs && new Date().getTime() < u.untilTs) }
+    function getUnlock() { return { monitor: getDirUnlock('monitor'), maintain: getDirUnlock('maintain') } }
+    function isUnlocked() { return dirActive('monitor') || dirActive('maintain') }
+    function hasDirectionAccess() { return dirActive(DIRECTION) }
+    function getIds(k) { try { return JSON.parse(localStorage.getItem(k) || '[]') } catch (e) { return [] } }
+    function hasId(k, id) { return getIds(k).indexOf(id) >= 0 }
+    function addId(k, id) { var a = getIds(k); if (a.indexOf(id) < 0) { a.push(id); localStorage.setItem(k, JSON.stringify(a)) } }
+    function delId(k, id) { var a = getIds(k).filter(function (x) { return x !== id }); localStorage.setItem(k, JSON.stringify(a)) }
+
+    function show(id) { ['home', 'typeselect', 'quiz', 'result'].forEach(function (s) { $(s).classList.toggle('hidden', s !== id) }) }
+    function $(id) { return document.getElementById(id) }
+    function typeName(t) { return t === 'single' ? '单选题' : t === 'multiple' ? '多选题' : '判断题' }
+    function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }
+    function correctValues(q) { return q.options.filter(function (o) { return o.isCorrect }).map(function (o) { return o.value }) }
+
+    // 模式定义（home 卡片）。lock 表示需要“本方向授权”
+    var MODES = [
+      { mode: 'free',   emo: '🎯', nm: '免费试做',     ct: '每方向 30 题，先练手', lock: false, typeSelect: true, allowStudy: true },
+      { mode: 'order',  emo: '📚', nm: '顺序练习',     ct: '按题型从头刷到尾',     lock: true,  typeSelect: true, allowStudy: true },
+      { mode: 'random', emo: '🔀', nm: '随机练习',     ct: '系统随机抽题',         lock: true,  typeSelect: true, allowStudy: true, force: 'practice' },
+      { mode: 'wrong',  emo: '📕', nm: '错题重练',     ct: '自动收录薄弱点',       lock: true,  typeSelect: true, allowStudy: true },
+      { mode: 'fav',    emo: '⭐', nm: '我的收藏',     ct: '常错易混反复看',       lock: true,  typeSelect: true, allowStudy: true },
+      { mode: 'exam',   emo: '⏱', nm: '模拟考试',     ct: '200题·限时·仿真',      lock: true,  typeSelect: false, allowStudy: false }
+    ]
+    var EXAM_PLAN = [['single', 100], ['multiple', 40], ['judge', 60]] // 模拟考试题量
+    var EXAM_TIME = 100 * 60 // 中级理论机考 100 分钟
+
+    var state = { mode: '', type: 'all', studyMode: false, idx: 0, selected: {}, submitted: false, source: [], answers: {}, backTo: 'home', scoreRight: 0 }
+    var examTimer = null
+
+    // ===== 首页 =====
+    function renderHome() {
+      state.mode = ''; state.idx = 0; state.selected = {}; state.submitted = false; state.answers = {}
+      show('home')
+      document.querySelectorAll('.dtab').forEach(function (el) {
+        el.classList.toggle('on', el.getAttribute('data-dir') === DIRECTION)
+        el.onclick = function () {
+          if (el.getAttribute('data-dir') === DIRECTION) return
+          window.location.href = 'practice.html?direction=' + el.getAttribute('data-dir')
+        }
+      })
+      var banner = $('unlockBanner')
+      var dirName = DIRECTION === 'maintain' ? '维保方向' : '监控方向'
+      var dirShort = DIRECTION === 'maintain' ? '维保' : '监控'
+      var fmt = function (ts) { var d = new Date(ts); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') }
+      if (hasDirectionAccess()) {
+        var du = getDirUnlock(DIRECTION)
+        banner.className = 'unlock-banner'
+        banner.innerHTML = '✅ 已解锁「' + dirShort + '」（至 ' + fmt(du.untilTs) + '），当前为' + dirName + '题库。'
+        $('homeTitle').textContent = dirName + ' · ' + ALL.length + ' 题'
+        $('homeSub').textContent = '完整题库 · 随时刷题，无需重复登录'
+      } else if (isUnlocked()) {
+        banner.className = 'unlock-banner'
+        banner.innerHTML = '⚠️ 您已解锁其他方向，' + dirName + '需单独解锁（添加老师微信领取解锁码）。'
+        $('homeTitle').textContent = dirName + ' · 在线刷题'
+        $('homeSub').textContent = '免费试做 30 题 + 模拟考试，解锁后畅刷全部 ' + ALL.length + ' 题'
+      } else {
+        banner.className = 'unlock-banner'
+        banner.innerHTML = '🎁 已免费试做 30 题，解锁后畅刷全部 ' + ALL.length + ' 题 + 模拟考试 + 错题本 + 收藏。'
+        $('homeTitle').textContent = dirName + ' · 在线刷题'
+        $('homeSub').textContent = '中级消防设施操作员 · ' + dirName
+      }
+      var grid = $('modeGrid'); grid.innerHTML = ''
+      MODES.forEach(function (m) {
+        if (m.lock && !hasDirectionAccess()) return // 锁定模式：未授权则不显示（模拟考试仅在解锁后出现）
+        var card = document.createElement('div')
+        card.className = 'mode-card'
+        card.setAttribute('data-mode', m.mode)
+        card.innerHTML = '<div class="emo">' + m.emo + '</div><div class="nm">' + m.nm + '</div><div class="ct">' + m.ct + '</div>'
+        card.addEventListener('click', function () { onPickMode(m) })
+        grid.appendChild(card)
+      })
+      // 未授权当前方向：追加解锁入口（含“联系老师”）
+      var cta = $('homeCta'); cta.innerHTML = ''
+      if (!hasDirectionAccess()) {
+        var lockUrl = 'unlock.html?direction=' + DIRECTION + (IS_MP ? '&mp=1' : '')
+        var btnLabel = isUnlocked() ? ('解锁' + dirName) : ('解锁完整版 ' + ALL.length + ' 题')
+        var lockCard = document.createElement('div')
+        lockCard.className = 'mode-card lock'
+        lockCard.style.gridColumn = '1 / -1'
+        lockCard.innerHTML = '<div class="emo">🔓</div><div class="nm">' + btnLabel + '</div><div class="ct">添加老师微信 · 老师发放解锁码</div>'
+        lockCard.addEventListener('click', function () { window.location.href = lockUrl })
+        grid.appendChild(lockCard)
+        var contact = document.createElement('a')
+        contact.className = 'btn btn-outline'
+        contact.style.cssText = 'width:100%;display:block;text-align:center;color:var(--primary);border-color:var(--primary)'
+        contact.href = 'index.html#contact'
+        contact.textContent = '💬 联系老师 / 咨询课程'
+        cta.appendChild(contact)
+      }
+    }
+
+    function onPickMode(m) {
+      if (m.lock && !hasDirectionAccess()) {
+        window.location.href = 'unlock.html?direction=' + DIRECTION
+        return
+      }
+      state.mode = m.mode
+      if (m.typeSelect) { openTypeSelect(m) }
+      else { startQuiz() } // 模拟考试：直接开始
+    }
+
+    // ===== 题型选择 =====
+    function openTypeSelect(m) {
+      show('typeselect')
+      state.backTo = 'home'
+      state.studyMode = false
+      $('typeTitle').textContent = m.nm + ' · 选择题型与模式'
+      var note = ''
+      if (m.mode === 'free') note = '免费试做：每题型 ' + FREE_PER_TYPE + ' 题，选“全部”即 ' + (FREE_PER_TYPE * 3) + ' 题。'
+      else if (m.mode === 'wrong') note = '仅显示你答错过的题目（当前 ' + getIds('xf_wrong').length + ' 道），可进一步选题型。'
+      else if (m.mode === 'fav') note = '仅显示你收藏的题目（当前 ' + getIds('xf_fav').length + ' 道），可进一步选题型。'
+      else note = '先选题型，再选学习或练习模式，然后开始。'
+      $('typeSub').textContent = (m.mode === 'random' ? '随机出题' : '顺序出题') + ' · ' + (DIRECTION === 'maintain' ? '维保方向' : '监控方向')
+      $('typeNote').textContent = note
+      state.type = 'all'
+
+      // 题型选择
+      var chips = [
+        { v: 'all', nm: '全部', cn: '' },
+        { v: 'single', nm: '单选题', cn: '' },
+        { v: 'multiple', nm: '多选题', cn: '全对得分' },
+        { v: 'judge', nm: '判断题', cn: '' }
+      ]
+      var box = $('typeChips'); box.innerHTML = ''
+      chips.forEach(function (c) {
+        var el = document.createElement('div')
+        el.className = 'chip' + (c.v === 'all' ? ' on' : '')
+        el.innerHTML = c.nm + (c.cn ? '<div class="cn">' + c.cn + '</div>' : '')
+        el.addEventListener('click', function () {
+          state.type = c.v
+          box.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on') })
+          el.classList.add('on')
+          updateStartLabel()
+        })
+        box.appendChild(el)
+      })
+
+      // 学习/练习模式选择
+      var mc = $('modeChoice'); mc.innerHTML = ''
+      var allChoices = [
+        { v: 'practice', nm: '练习模式', cn: '先做题，再对答案', icon: '✍️' },
+        { v: 'study', nm: '学习模式', cn: '直接看答案+解析', icon: '📖' }
+      ]
+      var choices = allChoices
+      if (m.force === 'practice') choices = allChoices.filter(function (c) { return c.v === 'practice' })
+      else if (m.force === 'study') choices = allChoices.filter(function (c) { return c.v === 'study' })
+      if (m.force) {
+        state.studyMode = m.force === 'study'
+        $('modeNote').textContent = (m.force === 'study'
+          ? '学习模式：直接看答案与解析，本模式仅学习。'
+          : '练习模式：先做题再对答案，本模式仅练习。')
+      } else {
+        state.studyMode = false
+        $('modeNote').textContent = '练习模式：先做题再对答案；学习模式：直接看答案与解析。'
+      }
+      var defaultSel = m.force || 'practice'
+      choices.forEach(function (c) {
+        var el = document.createElement('div')
+        el.className = 'chip' + (c.v === defaultSel ? ' on' : '')
+        el.innerHTML = c.icon + ' ' + c.nm + '<div class="cn">' + c.cn + '</div>'
+        el.addEventListener('click', function () {
+          if (m.force) return // 单一模式不可切换
+          state.studyMode = c.v === 'study'
+          mc.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on') })
+          el.classList.add('on')
+          updateStartLabel()
+        })
+        mc.appendChild(el)
+      })
+      updateStartLabel()
+    }
+
+    function updateStartLabel() {
+      $('startBtn').textContent = (state.studyMode ? '开始学习' : '开始练习') + ' ›'
+    }
+
+    function buildSource() {
+      var mode = state.mode, type = state.type
+      if (mode === 'exam') return buildExam()
+      var base
+      if (mode === 'free') base = FREE
+      else if (mode === 'wrong') base = ALL.filter(function (q) { return hasId('xf_wrong', q.id) })
+      else if (mode === 'fav') base = ALL.filter(function (q) { return hasId('xf_fav', q.id) })
+      else base = ALL // order / random / studyMode
+      if (type && type !== 'all') base = base.filter(function (q) { return q.type === type })
+      if (mode === 'random') base = shuffle(base)
+      return base
+    }
+
+    function buildExam() {
+      var groups = { single: [], multiple: [], judge: [] }
+      CHAPTERS.forEach(function (c) { groups[c.type] = c.questions.slice() })
+      var picks = []
+      EXAM_PLAN.forEach(function (p) {
+        var arr = shuffle(groups[p[0]])
+        picks = picks.concat(arr.slice(0, Math.min(p[1], arr.length)))
+      })
+      return picks
+    }
+
+    // ===== 答题 =====
+    function startQuiz() {
+      if (examTimer) { clearInterval(examTimer); examTimer = null }
+      $('timer').classList.add('hidden')
+      state.source = buildSource()
+      state.idx = 0; state.selected = {}; state.submitted = false; state.answers = {}; state.scoreRight = 0
+      if (state.source.length === 0) {
+        alert('本题库暂为空：' + (state.mode === 'wrong' ? '先去做几道题，答错的会自动收录到这里～' : state.mode === 'fav' ? '去题目右上角点☆收藏吧～' : '请先选择其他题型或方向。'))
+        if (MODES.filter(function (m) { return m.mode === state.mode })[0].typeSelect) openTypeSelect(MODES.filter(function (m) { return m.mode === state.mode })[0])
+        else renderHome()
+        return
+      }
+      state.backTo = (MODES.filter(function (m) { return m.mode === state.mode })[0].typeSelect) ? 'typeselect' : 'home'
+      show('quiz'); render()
+      if (state.mode === 'exam') startExamTimer(EXAM_TIME)
+    }
+
+    function render() {
+      var q = state.source[state.idx]
+      var favOn = hasId('xf_fav', q.id)
+      var opts = q.options.map(function (o) {
+        return '<div class="opt" data-v="' + o.value + '">' +
+          '<span class="lab">' + o.value + '</span><span>' + esc(o.text) + '</span></div>'
+      }).join('')
+      var fav = '<span class="star ' + (favOn ? 'on' : '') + '" id="favStar">' + (favOn ? '★' : '☆') + '</span>'
+      $('qBox').innerHTML =
+        '<div class="q-card">' + fav +
+        '<span class="q-type ' + (q.type === 'single' ? 'single' : q.type === 'multiple' ? 'multiple' : 'judge') + '">' + typeName(q.type) + '</span>' +
+        '<div class="q-text">' + (state.idx + 1) + '. ' + esc(q.question) + '</div>' +
+        opts +
+        '<div class="q-explain" id="exp" style="display:none">💡 解析：' + esc(q.explanation) + '</div>' +
+        '</div>'
+      $('qBox').querySelectorAll('.opt').forEach(function (el) { el.addEventListener('click', function () { onPick(el, q) }) })
+      $('favStar').addEventListener('click', function () {
+        if (hasId('xf_fav', q.id)) { delId('xf_fav', q.id); $('favStar').textContent = '☆'; $('favStar').classList.remove('on') }
+        else { addId('xf_fav', q.id); $('favStar').textContent = '★'; $('favStar').classList.add('on') }
+      })
+      var total = state.source.length
+      $('progress').textContent = '第 ' + (state.idx + 1) + ' / ' + total + ' 题' + (state.mode === 'exam' ? '（模拟考试）' : '')
+      // 上一题按钮可用性
+      $('prevBtn').disabled = state.idx === 0
+      if (state.studyMode) {
+        correctValues(q).forEach(function (v) {
+          var el = $('qBox').querySelector('.opt[data-v="' + v + '"]'); if (el) el.classList.add('correct', 'study')
+        })
+        $('exp').style.display = 'block'
+        $('submitHint').textContent = '学习模式：加深绿色为正确答案'
+        $('nextBtn').textContent = state.idx < total - 1 ? '下一题 ›' : '返回首页'
+      } else {
+        state.submitted = false; state.selected = {}
+        $('qBox').querySelectorAll('.opt').forEach(function (x) { x.classList.remove('sel', 'correct', 'wrong') })
+        $('submitHint').textContent = q.type === 'multiple' ? '多选题：须全选对才得分，选完点“提交答案”' : '选择后点“提交答案”看是否正确'
+        $('nextBtn').textContent = '提交答案'
+      }
+    }
+
+    function onPick(el, q) {
+      if (state.submitted) return
+      var v = el.getAttribute('data-v')
+      if (q.type === 'multiple') {
+        if (state.selected[v]) { delete state.selected[v]; el.classList.remove('sel') }
+        else { state.selected[v] = true; el.classList.add('sel') }
+      } else {
+        state.selected = {}
+        $('qBox').querySelectorAll('.opt').forEach(function (x) { x.classList.remove('sel') })
+        state.selected[v] = true; el.classList.add('sel')
+      }
+    }
+
+    function submit() {
+      var q = state.source[state.idx]
+      if (Object.keys(state.selected).length === 0) { alert('请先选择答案'); return }
+      state.submitted = true
+      state.answers[state.idx] = Object.keys(state.selected)
+      var ok = state.answers[state.idx].slice().sort().join('') === correctValues(q).slice().sort().join('')
+      if (ok) state.scoreRight++; else addId('xf_wrong', q.id)
+      $('qBox').querySelectorAll('.opt').forEach(function (el) {
+        var v = el.getAttribute('data-v')
+        var isC = q.options.filter(function (o) { return o.value === v && o.isCorrect }).length > 0
+        if (isC) el.classList.add('correct')
+        if (state.selected[v] && !isC) el.classList.add('wrong')
+      })
+      $('exp').style.display = 'block'
+      $('submitHint').textContent = ok ? '✅ 回答正确' : '❌ 回答错误，正确答案已标绿'
+      var last = state.idx >= state.source.length - 1
+      $('nextBtn').textContent = last ? (state.mode === 'exam' ? '交卷' : '查看成绩') : '下一题 ›'
+    }
+
+    function goNext() {
+      if (state.studyMode) {
+        if (state.idx < state.source.length - 1) { state.idx++; render() } else { renderHome() }
+        return
+      }
+      if (state.mode === 'exam') {
+        if (!state.submitted) { submit(); return }
+        if (state.idx < state.source.length - 1) { state.idx++; render() } else { finishExam() }
+        return
+      }
+      if (!state.submitted) { submit(); return }
+      if (state.idx < state.source.length - 1) { state.idx++; render() }
+      else { showResult() }
+    }
+
+    function goPrev() { if (state.idx > 0) { state.idx--; render() } }
+
+    function showResult() {
+      var total = state.source.length
+      var isFree = state.mode === 'free'
+      $('resultBox').innerHTML =
+        '<div class="score">' + state.scoreRight + '</div>' +
+        '<div style="color:var(--text-2);margin:6px 0 18px">本次答对 ' + state.scoreRight + ' / ' + total + ' 题</div>' +
+        (isFree && !isUnlocked()
+          ? (IS_MP
+              ? '<p style="font-size:13px;color:var(--text-2);margin-bottom:16px">还想刷更多？加老师微信解锁完整 ' + ALL.length + ' 题 + 模拟考试</p><a class="btn btn-accent" style="width:100%;max-width:280px;margin:0 auto 12px;display:block" href="index.html#contact">联系老师解锁完整版 ›</a>'
+              : '<p style="font-size:13px;color:var(--text-2);margin-bottom:16px">还想刷更多？解锁完整 ' + ALL.length + ' 题 + 模拟考试</p><a class="btn btn-accent" style="width:100%;max-width:280px;margin:0 auto 12px;display:block" href="unlock.html?direction=' + DIRECTION + '">解锁完整版 ›</a>')
+          : '') +
+        '<a class="btn btn-primary" style="width:100%;max-width:280px;margin:0 auto;display:block" href="practice.html?direction=' + DIRECTION + '">再刷一组 ›</a>'
+      show('result')
+    }
+
+    // ===== 模拟考试评分 =====
+    function startExamTimer(sec) {
+      var left = sec
+      $('timer').classList.remove('hidden')
+      function tick() {
+        var m = Math.floor(left / 60), s = left % 60
+        $('timer').textContent = '⏱ 剩余 ' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0')
+        if (left <= 0) { clearInterval(examTimer); finishExam(); return }
+        left--
+      }
+      tick(); examTimer = setInterval(tick, 1000)
+    }
+
+    function finishExam() {
+      if (examTimer) { clearInterval(examTimer); examTimer = null }
+      var right = { single: 0, multiple: 0, judge: 0 }
+      state.source.forEach(function (q, i) {
+        var sel = state.answers[i]
+        var ok = sel && correctValues(q).slice().sort().join('') === sel.slice().sort().join('')
+        if (ok) right[q.type]++
+      })
+      var score = Math.round((right.single * 0.5 + right.multiple * 0.5 + right.judge * 0.5) * 10) / 10
+      var pass = score >= 60
+      $('resultBox').innerHTML =
+        '<div class="score">' + score + '<span style="font-size:18px;color:var(--text-2)"> / 100</span></div>' +
+        '<div class="' + (pass ? 'pass-tag ok' : 'pass-tag no') + '">' + (pass ? '🎉 及格（≥60）' : '未及格（需≥60）') + '</div>' +
+        '<div class="score-detail">' +
+          examRow('单选题', right.single, 100, 50) +
+          examRow('多选题', right.multiple, 40, 20) +
+          examRow('判断题', right.judge, 60, 30) +
+          '<div class="row" style="font-weight:700"><span>合计</span><span>满分 100 · 答对 ' + (right.single + right.multiple + right.judge) + '/200</span></div>' +
+        '</div>' +
+        '<a class="btn btn-primary" style="width:100%;max-width:280px;margin:0 auto 12px;display:block" href="practice.html?direction=' + DIRECTION + '">再来一次 ›</a>' +
+        '<a class="btn btn-outline" style="width:100%;max-width:280px;margin:0 auto;display:block;color:var(--primary);border-color:var(--primary)" href="index.html">返回首页</a>'
+      show('result')
+    }
+    function examRow(name, right, total, full) {
+      var pts = Math.round(right * (full / total) * 10) / 10
+      return '<div class="row"><span>' + name + '（' + total + '题·' + full + '分）</span><span>对 ' + right + ' · 得 ' + pts + ' 分</span></div>'
+    }
+
+    // ===== 事件绑定 =====
+    $('nextBtn').addEventListener('click', goNext)
+    $('prevBtn').addEventListener('click', goPrev)
+    $('backBtn').addEventListener('click', function (e) {
+      e.preventDefault()
+      if (examTimer) { clearInterval(examTimer); examTimer = null }
+      if (state.backTo === 'typeselect') openTypeSelect(MODES.filter(function (m) { return m.mode === state.mode })[0])
+      else renderHome()
+    })
+    $('backHome2').addEventListener('click', function (e) { e.preventDefault(); renderHome() })
+    $('startBtn').addEventListener('click', startQuiz)
+
+    renderHome()
+  </script>
+</body>
+</html>
