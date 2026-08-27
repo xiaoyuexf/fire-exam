@@ -1,0 +1,217 @@
+/* ===== 消防通 网页版（公众号H5）样式 =====
+   设计：移动优先、微信内打开友好、蓝橙主色、卡片式
+   信任优化：无强营销弹窗、页脚备案号、真实联系信息
+*/
+
+:root {
+  --primary: #1a56db;
+  --primary-light: #e8edfc;
+  --primary-dark: #1347b0;
+  --accent: #f97316;
+  --accent-light: #fff7ed;
+  --success: #10b981;
+  --danger: #ef4444;
+  --text-1: #1e293b;
+  --text-2: #64748b;
+  --text-3: #94a3b8;
+  --bg: #f0f4f8;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 4px 20px rgba(26, 86, 219, 0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text-1);
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 480px;
+  margin: 0 auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+
+/* 微信环境提示条 */
+.wx-tip {
+  background: #fef9c3;
+  color: #854d0e;
+  font-size: 12px;
+  text-align: center;
+  padding: 6px 12px;
+}
+
+/* 顶部信任条 */
+.trust-bar {
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+  padding: 6px 12px;
+  letter-spacing: 1px;
+}
+
+/* 导航 */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid var(--border);
+}
+.nav-brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 17px; }
+.nav-logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--primary), #3b82f6); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+.nav-menu { font-size: 13px; color: var(--text-2); }
+
+/* 区块通用 */
+.section { padding: 28px 18px; }
+.section-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.section-sub { font-size: 13px; color: var(--text-2); margin-bottom: 18px; }
+.card { background: var(--card); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px; }
+
+/* Hero */
+.hero {
+  background: linear-gradient(160deg, #1a56db 0%, #2563eb 50%, #3b82f6 100%);
+  color: #fff;
+  padding: 40px 20px 48px;
+  text-align: center;
+  border-radius: 0 0 28px 28px;
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  font-size: 12px;
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+.hero h1 { font-size: 26px; font-weight: 800; line-height: 1.35; margin-bottom: 12px; }
+.hero p { font-size: 14px; color: rgba(255,255,255,0.82); margin-bottom: 24px; }
+.hero-cta { display: flex; flex-direction: column; gap: 12px; max-width: 280px; margin: 0 auto; }
+.btn {
+  display: flex; align-items: center; justify-content: center;
+  height: 48px; border-radius: 12px; font-size: 15px; font-weight: 600;
+  border: none; width: 100%; cursor: pointer; transition: .15s; text-align: center;
+}
+.btn-primary { background: #fff; color: var(--primary); }
+.btn-accent { background: linear-gradient(135deg, var(--accent), #ea580c); color: #fff; box-shadow: 0 4px 16px rgba(249,115,22,0.35); }
+.btn-outline { background: transparent; border: 1.5px solid #fff; color: #fff; }
+.btn:active { transform: scale(0.97); }
+
+/* Hero 下方浮卡：数据 */
+.hero-stats {
+  margin: -28px 18px 0;
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 18px;
+  display: flex;
+  box-shadow: var(--shadow);
+  position: relative;
+  z-index: 10;
+}
+.hero-stat { flex: 1; text-align: center; }
+.hero-stat .num { font-size: 22px; font-weight: 800; color: var(--primary); }
+.hero-stat .lbl { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.hero-stat + .hero-stat { border-left: 1px solid var(--border); }
+
+/* 功能网格 */
+.feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.feature {
+  background: #fff; border-radius: var(--radius-sm); padding: 18px 14px;
+  box-shadow: var(--shadow); text-align: center;
+}
+.feature .ic { width: 44px; height: 44px; border-radius: 12px; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.feature .name { font-size: 14px; font-weight: 700; }
+.feature .desc { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+/* 双方向说明 */
+.dir-row { display: flex; gap: 12px; }
+.dir-card { flex: 1; border-radius: var(--radius); padding: 18px; color: #fff; }
+.dir-card.monitor { background: linear-gradient(135deg, #1a56db, #3b82f6); }
+.dir-card.maintain { background: linear-gradient(135deg, #f97316, #ea580c); }
+.dir-card .t { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.dir-card .d { font-size: 12px; opacity: .9; line-height: 1.5; }
+.dir-note { font-size: 12px; color: var(--text-2); margin-top: 12px; background: var(--primary-light); padding: 12px 14px; border-radius: var(--radius-sm); }
+
+/* 价格（引流用，不强付款） */
+.price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.price {
+  background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 16px 10px; text-align: center; position: relative;
+}
+.price.hot { border-color: var(--accent); }
+.price .tag { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; font-size: 11px; padding: 2px 12px; border-radius: 10px; }
+.price .nm { font-size: 13px; font-weight: 700; }
+.price .pr { font-size: 24px; font-weight: 800; color: var(--accent); margin: 6px 0; }
+.price .pr small { font-size: 12px; font-weight: 500; color: var(--text-3); }
+.price .du { font-size: 11px; color: var(--text-3); }
+.price .per { font-size: 11px; color: var(--text-2); margin-top: 4px; }
+
+/* 学员评价 */
+.review { background: #fff; border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
+.review .top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.review .av { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+.review .nm { font-size: 14px; font-weight: 600; }
+.review .st { font-size: 11px; color: var(--accent); }
+.review .tx { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+
+/* 联系/引流区（重点：点5） */
+.contact { background: linear-gradient(160deg, #1a56db, #3b82f6); border-radius: 24px; padding: 26px 20px; color: #fff; text-align: center; }
+.contact h3 { font-size: 19px; font-weight: 800; margin-bottom: 6px; }
+.contact p { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 18px; }
+.contact-info { display: flex; gap: 12px; margin-bottom: 18px; }
+.contact-box { flex: 1; background: rgba(255,255,255,0.12); border-radius: 12px; padding: 12px; }
+.contact-box .k { font-size: 11px; color: rgba(255,255,255,0.7); }
+.contact-box .v { font-size: 15px; font-weight: 700; margin-top: 2px; }
+.qr-wrap { background: #fff; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; align-items: center; margin: 0 auto 14px; text-align: center; }
+.qr-wrap img { width: 150px; height: 150px; display: block; margin: 0 auto; }
+.qr-wrap .cap { font-size: 12px; color: var(--text-2); margin-top: 8px; }
+.teacher-info { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); text-align: left; }
+.teacher-info .info-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 12px; color: var(--text-1); line-height: 1.8; }
+.teacher-info .info-row .label { color: var(--text-2); white-space: nowrap; }
+.teacher-info .info-row .value { font-weight: 600; color: var(--primary); text-align: right; word-break: break-all; }
+.contact-cta { background: #fff; color: var(--primary); }
+
+/* 页脚 */
+.footer { text-align: center; padding: 24px 18px 40px; font-size: 12px; color: var(--text-3); line-height: 1.8; }
+.footer .icp { color: var(--text-2); }
+.footer a { color: var(--primary); }
+
+/* 试看页 */
+.q-card { background: #fff; border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px; }
+.q-type { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 10px; margin-bottom: 10px; }
+.q-type.single { background: var(--primary-light); color: var(--primary); }
+.q-type.multi { background: var(--accent-light); color: var(--accent); }
+.q-text { font-size: 15px; font-weight: 600; line-height: 1.6; margin-bottom: 14px; }
+.opt { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; }
+.opt .lab { width: 24px; height: 24px; border-radius: 50%; background: #e2e8f0; color: var(--text-2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.q-explain { margin-top: 12px; background: #fefce8; border-radius: 10px; padding: 12px 14px; font-size: 13px; color: #78350f; display: none; }
+.q-explain.show { display: block; }
+
+/* 解锁页 */
+.unlock-wrap { padding: 60px 24px; text-align: center; }
+.unlock-wrap h2 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+.unlock-wrap p { font-size: 14px; color: var(--text-2); margin-bottom: 28px; }
+.unlock-input { width: 100%; height: 52px; border: 1.5px solid var(--border); border-radius: 12px; text-align: center; font-size: 18px; letter-spacing: 3px; margin-bottom: 16px; font-weight: 600; }
+.unlock-input:focus { outline: none; border-color: var(--primary); }
+.unlock-msg { font-size: 13px; margin-top: 14px; min-height: 20px; }
+.unlock-msg.ok { color: var(--success); }
+.unlock-msg.err { color: var(--danger); }
+.unlock-tip { font-size: 12px; color: var(--text-3); margin-top: 30px; line-height: 1.7; }
+
+.fixed-bottom { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; padding: 12px 18px; box-shadow: 0 -2px 16px rgba(0,0,0,0.06); display: flex; gap: 12px; }
+.fixed-bottom .btn { height: 44px; font-size: 14px; }
+
+/* ===== 小程序模式（?mp=1）：隐藏价格与付款入口，仅保留免费试做 + 联系老师 ===== */
+.mp-mode .mp-hide { display: none !important; }
