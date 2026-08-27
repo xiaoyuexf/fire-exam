@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>解锁题库 · 消防通</title>
+  <link rel="stylesheet" href="assets/css/style.css?v=3" />
+  <style>
+    .unlock-wrap { padding: 54px 22px 30px; text-align: center; }
+    .pay-box { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 18px 16px; margin: 0 0 18px; text-align: center; }
+    .pay-box h3 { font-size: 16px; margin: 0 0 4px; }
+    .pay-box .sub { font-size: 12.5px; color: var(--text-2); margin-bottom: 14px; }
+    .pay-qrs { display: flex; gap: 14px; justify-content: center; }
+    .pay-qr { flex: 1; max-width: 150px; background: #f8fafc; border-radius: 12px; padding: 12px 8px; }
+    .pay-qr img { width: 120px; height: 136px; object-fit: contain; }
+    .pay-qr .cap { font-size: 12px; color: var(--text-2); margin-top: 6px; font-weight: 600; }
+    .pay-note { font-size: 12px; color: var(--text-2); line-height: 1.7; margin: 12px 0 0; text-align: left; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px; padding: 10px 12px; }
+    .unlock-step { text-align: left; font-size: 13px; color: var(--text-2); line-height: 1.8; margin: 16px 0; padding: 0 4px; }
+    .unlock-step b { color: var(--text); }
+    .unlock-input { width: 100%; height: 52px; border: 1.5px solid var(--border); border-radius: 12px; text-align: center; font-size: 18px; letter-spacing: 3px; margin: 8px 0 14px; font-weight: 600; }
+    .unlock-input:focus { outline: none; border-color: var(--primary); }
+    .unlock-msg { font-size: 13px; margin-top: 12px; min-height: 20px; }
+    .unlock-msg.ok { color: var(--success); }
+    .unlock-msg.err { color: var(--danger); }
+    /* 已解锁面板 */
+    .already { background: linear-gradient(135deg,#ecfdf5,#d1fae5); border:1px solid #6ee7b7; border-radius:16px; padding:22px 18px; text-align:center; }
+    .already .big { font-size:17px; font-weight:700; color:#065f46; margin-bottom:6px; }
+    .already .small { font-size:13px; color:#047857; margin-bottom:16px; line-height:1.7; }
+    .already .re-link { display:inline-block; margin-top:10px; font-size:12.5px; color:var(--text-2); cursor:pointer; text-decoration:underline; }
+    /* 方向/解锁区域 */
+    .pkg-box { margin: 0 0 18px; }
+    .pkg-title { font-size:13px; font-weight:600; text-align:left; margin-bottom:8px; color:var(--text); }
+    .pkg-grid { display:flex; gap:12px; }
+    .pkg-card { flex:1; border:1.5px solid var(--border); border-radius:14px; padding:14px 10px; text-align:center; cursor:pointer; background:#fff; transition:.15s; }
+    .pkg-card.on { border-color:var(--primary); background:#fff7f3; box-shadow:0 0 0 2px rgba(249,115,22,.15); }
+    .pkg-card .pn { font-weight:700; font-size:15px; }
+    .pkg-card .pp { font-size:20px; font-weight:800; color:var(--primary); margin:4px 0; }
+    .pkg-card .pd { font-size:11.5px; color:var(--text-2); line-height:1.5; }
+    .pkg-card .ptag { display:inline-block; font-size:10px; background:var(--primary); color:#fff; border-radius:6px; padding:1px 6px; margin-top:5px; }
+    .pkg-sel { font-size:12.5px; color:var(--text-2); margin-top:8px; text-align:left; }
+    .pkg-sel b { color:var(--primary); }
+    /* 方向切换条 */
+    .dir-tabs { display:flex; gap:8px; margin-bottom:12px; }
+    .dir-tab { flex:1; text-align:center; padding:10px 0; font-size:13px; font-weight:600; color:var(--text-2); background:#fff; border:1px solid var(--border); border-radius:12px; cursor:pointer; transition:.15s; }
+    .dir-tab.on { color:#fff; background:var(--primary); border-color:var(--primary); }
+    /* 咨询引导 */
+    .consult-box { background:linear-gradient(135deg,#ecfdf5,#d1fae5); border:1px solid #6ee7b7; border-radius:16px; padding:16px; text-align:center; margin:18px 0; }
+    .consult-box p { font-size:13px; color:#065f46; margin:0 0 12px; }
+    /* 老师微信二维码弹窗 */
+    .qr-modal { position:fixed; inset:0; z-index:1000; display:none; }
+    .qr-modal.show { display:block; }
+    .qr-mask { position:absolute; inset:0; background:rgba(0,0,0,.5); }
+    .qr-pop { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:300px; max-width:86vw; background:#fff; border-radius:16px; padding:22px 18px; text-align:center; }
+    .qr-close { position:absolute; right:12px; top:6px; border:none; background:transparent; font-size:26px; line-height:1; color:#94a3b8; cursor:pointer; }
+    .qr-title { font-size:17px; font-weight:700; margin-bottom:6px; }
+    .qr-sub { font-size:13px; color:var(--text-2); margin-bottom:12px; line-height:1.6; }
+    .qr-img { width:200px; height:200px; object-fit:contain; border:1px solid var(--border); border-radius:10px; }
+    .qr-tip { font-size:12px; color:var(--text-2); margin-top:10px; }
+  </style>
+</head>
+<body>
+  <script>if (new URLSearchParams(location.search).has('mp')) document.body.classList.add('mp-mode')</script>
+  <nav class="nav">
+    <div class="nav-brand"><span class="nav-logo">消</span>消防通</div>
+    <a class="nav-menu" href="index.html">返回 ›</a>
+  </nav>
+
+  <div class="unlock-wrap">
+    <h2>解锁完整版题库</h2>
+    <p id="unlockSub">添加老师微信领解锁码 → 输码激活，即可畅刷完整题库</p>
+
+    <!-- 已解锁：直接去刷题 -->
+    <div id="alreadyUnlocked" class="hidden">
+      <div class="already">
+        <div class="big">✅ 您已解锁完整版题库</div>
+        <div class="small" id="alreadyMsg"></div>
+        <a class="btn btn-primary" style="width:100%;max-width:280px;display:block;margin:0 auto" href="practice.html">去刷题 ›</a>
+        <span class="re-link" id="reUnlock">使用其他解锁码 ›</span>
+      </div>
+    </div>
+
+    <!-- 未解锁：加老师微信领码 + 输码 -->
+    <div id="unlockForm">
+      <!-- 流程 -->
+      <div class="unlock-step" id="unlockStep">
+        <b>第 1 步</b>　添加老师微信，老师会根据你的方向发放专属<b>解锁码</b>。<br/>
+        <b>第 2 步</b>　拿到解锁码后，在下方输入激活，即可在网页畅刷全部题库，<b>无需再次登录</b>。
+      </div>
+
+      <!-- 加老师微信领码 -->
+      <button class="btn btn-primary" id="pickBtn" style="width:100%;max-width:300px;margin:0 auto 16px;display:block">加老师微信领解锁码 ›</button>
+
+      <!-- 解锁码输入 -->
+      <input class="unlock-input" id="codeInput" placeholder="请输入解锁码" maxlength="20" />
+      <button class="btn btn-primary" id="verifyBtn" style="width:100%">激活解锁</button>
+      <div class="unlock-msg" id="msg"></div>
+
+      <a class="btn btn-outline" style="width:100%;margin-top:20px;color:var(--primary);border-color:var(--primary)" href="index.html#contact">查看老师微信 ›</a>
+    </div>
+
+  <!-- 老师微信二维码弹窗 -->
+  <div class="qr-modal" id="qrModal">
+    <div class="qr-mask" id="qrMask"></div>
+    <div class="qr-pop">
+      <button class="qr-close" id="qrClose" type="button">×</button>
+      <div class="qr-title">添加老师微信</div>
+      <div class="qr-sub" id="qrSub">长按或扫码添加好友，私聊后老师发放解锁码</div>
+      <img class="qr-img" src="assets/images/qr-wechat.png?v=3" alt="老师微信二维码" />
+      <div class="qr-tip">添加好友后，老师会发你专属解锁码</div>
+    </div>
+  </div>
+  </div>
+
+  <script src="lib/code.js"></script>
+  <script>
+    var input = document.getElementById('codeInput')
+    var btn = document.getElementById('verifyBtn')
+    var msg = document.getElementById('msg')
+
+    // 本地解锁状态（与 practice.html 同口径，兼容 until / untilTs 两种存储格式）
+    function getDirUnlock(d) { try { return JSON.parse(localStorage.getItem('xf_unlock_' + d) || 'null') } catch (e) { return null } }
+    function dirActive(d) { var u = getDirUnlock(d); return !!(u && u.untilTs && new Date().getTime() < u.untilTs) }
+    function getUnlock() { return { monitor: getDirUnlock('monitor'), maintain: getDirUnlock('maintain') } }
+    function isUnlocked() { return dirActive('monitor') || dirActive('maintain') }
+
+    // 统一会员有效期算法：激活成功这一刻起算 + N 个日历月（月末归位，避免 setMonth 边界 bug）
+    function addMonths(date, months) {
+      var d = new Date(date)
+      var day = d.getDate()
+      d.setMonth(d.getMonth() + months)
+      if (d.getDate() !== day) d.setDate(0) // 跨月末溢出则归位到目标月最后一天
+      return d
+    }
+    function fmtDate(d) {
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+    }
+
+    // 小程序模式（?mp=1）：文案改为"加微信发码"，保持后续跳转带 mp
+    var IS_MP = new URLSearchParams(location.search).has('mp')
+    if (IS_MP) {
+      var _sub = document.getElementById('unlockSub'); if (_sub) _sub.textContent = '添加老师微信 → 老师发解锁码 → 输码激活，畅刷题库'
+      var _step = document.getElementById('unlockStep'); if (_step) _step.innerHTML = '<b>第 1 步</b>　添加老师微信，老师会根据你的方向发放专属<b>解锁码</b>。<br/><b>第 2 步</b>　在下方输入解锁码，激活后即可畅刷题库，<b>无需再次登录</b>。'
+      var _go = document.querySelector('#alreadyUnlocked a.btn-primary'); if (_go) _go.href = 'practice.html?mp=1'
+    }
+
+    // 老师微信二维码弹窗（仅引导加微信领码）
+    var qrModal = document.getElementById('qrModal')
+    function openQr(sub) {
+      if (sub) { var s = document.getElementById('qrSub'); if (s) s.textContent = sub }
+      qrModal.classList.add('show')
+    }
+    function closeQr() { qrModal.classList.remove('show') }
+    document.getElementById('qrClose').addEventListener('click', closeQr)
+    document.getElementById('qrMask').addEventListener('click', closeQr)
+    document.getElementById('pickBtn').addEventListener('click', function () {
+      openQr('长按或扫码添加老师微信，私聊领取解锁码后激活即可刷题')
+    })
+
+    // 纯前端校验：与小程序同一套激活码算法（lib/code.js），零服务器依赖
+    // 方向独立：监控码(M)只解监控、维保码(K)只解维保、双方向码(B)同时解两个
+    function activate(r) {
+      var months = r.months || 1
+      var until = addMonths(new Date(), months)
+      var dirs = r.direction === 'both' ? ['monitor', 'maintain'] : [r.direction]
+      for (var i = 0; i < dirs.length; i++) {
+        localStorage.setItem('xf_unlock_' + dirs[i], JSON.stringify({ until: until.toISOString(), untilTs: until.getTime(), code: input.value.trim() }))
+      }
+      var dirName = r.direction === 'both' ? '监控+维保（双方向）' : (r.direction === 'monitor' ? '监控' : '维保')
+      msg.textContent = '✓ 激活成功！「' + dirName + '方向」已解锁（' + months + '个月，有效期至 ' + fmtDate(until) + '）正在打开题库...'
+      msg.className = 'unlock-msg ok'
+      setTimeout(function () {
+        var q = []
+        if (r.direction !== 'both') q.push('direction=' + r.direction)
+        if (IS_MP) q.push('mp=1')
+        window.location.href = 'practice.html' + (q.length ? '?' + q.join('&') : '')
+      }, 1800)
+    }
+
+    function verify() {
+      var code = input.value.trim()
+      if (!code) { msg.textContent = '请输入解锁码'; msg.className = 'unlock-msg err'; return }
+      btn.textContent = '验证中...'
+      var r = (window.Code ? Code.verifyCode(code) : { ok: false, msg: '校验模块未加载' })
+      btn.textContent = '激活解锁'
+      if (r.ok) { activate(r); return }
+      msg.textContent = '✗ ' + (r.msg || '激活码无效，请核对后重试') + '（联系老师领取）'
+      msg.className = 'unlock-msg err'
+    }
+
+    btn.addEventListener('click', verify)
+
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') verify() })
+
+    // 已解锁：直接展示「去刷题」，不再要求重复输入解锁码
+    function showAlready() {
+      var u = getUnlock()
+      var parts = []
+      if (u.monitor && u.monitor.untilTs && new Date().getTime() < u.monitor.untilTs) { var m = new Date(u.monitor.untilTs); parts.push('监控方向（至 ' + fmtDate(m) + '）') }
+      if (u.maintain && u.maintain.untilTs && new Date().getTime() < u.maintain.untilTs) { var w = new Date(u.maintain.untilTs); parts.push('维保方向（至 ' + fmtDate(w) + '）') }
+      document.getElementById('alreadyMsg').textContent =
+        '当前已解锁：' + (parts.length ? parts.join('、') : '无') + '。点击下方按钮即可直接刷题，无需再次输入解锁码。'
+      document.getElementById('unlockForm').classList.add('hidden')
+      document.getElementById('alreadyUnlocked').classList.remove('hidden')
+    }
+    document.getElementById('reUnlock').addEventListener('click', function () {
+      document.getElementById('alreadyUnlocked').classList.add('hidden')
+      document.getElementById('unlockForm').classList.remove('hidden')
+    })
+
+    // 入口：若带方向参数，激活后跳到对应方向
+    var up = new URLSearchParams(location.search)
+    var ud = (up.get('direction') || '').toLowerCase()
+
+    if (isUnlocked()) showAlready()
+  </script>
+</body>
+</html>
