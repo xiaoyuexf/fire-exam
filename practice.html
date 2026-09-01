@@ -674,10 +674,26 @@
         // 学习模式：下一题直达（无提交）
         $('nextLabel').textContent = last ? '完成 ›' : '下一题 ›'
       } else {
-        state.submitted = false
-        if (!state.answers[state.idx]) {
+        // 练习模式：先看上一题/本题有没有已保存答案，有则恢复已提交状态
+        var prevAns = state.answers[state.idx]
+        if (prevAns && prevAns.length) {
+          state.submitted = true
+          state.selected = {}
+          prevAns.forEach(function (v) { state.selected[v] = true })
+          $('qBox').querySelectorAll('.opt').forEach(function (el) {
+            var v = el.getAttribute('data-v')
+            var isC = q.options.filter(function (o) { return o.value === v && o.isCorrect }).length > 0
+            el.classList.remove('sel', 'correct', 'wrong')
+            if (isC) el.classList.add('correct')
+            if (state.selected[v] && !isC) el.classList.add('wrong')
+            if (state.selected[v]) el.classList.add('sel')
+          })
+          $('exp').style.display = 'block'
+        } else {
+          state.submitted = false
           state.selected = {}
           $('qBox').querySelectorAll('.opt').forEach(function (x) { x.classList.remove('sel', 'correct', 'wrong') })
+          $('exp').style.display = 'none'
         }
         $('nextLabel').textContent = state.submitted ? (last ? (state.mode === 'exam' ? '交卷 ›' : '查看成绩 ›') : '下一题 ›') : '提交答案 ›'
       }
