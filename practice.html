@@ -29,11 +29,16 @@
     .opt.sel { border-color: var(--primary); background:#fef3f2; }
     /* 判断题：value 和 text 都是"正确/错误"，不画圆形 lab，用圆角文字标签居中显示，避免双重显示 */
     .opt.judge-opt { justify-content:center; padding:14px; }
-    .opt .judge-label { padding:6px 18px; background:#f1f5f9; border-radius:8px; color:var(--text-1); font-weight:700; font-size:16px; line-height:1.4; letter-spacing:.5px; transition:.15s; }
+    .opt .judge-label { padding:8px 22px; background:#f1f5f9; border-radius:10px; color:var(--text-1); font-weight:700; font-size:16px; line-height:1.4; letter-spacing:.5px; transition:.2s; }
     .opt.judge-opt.sel .judge-label { background:#fef3f2; color:var(--primary); }
-    .opt.judge-opt.correct .judge-label { background:#dcfce7; color:#15803d; border:1px solid #22c55e; }
-    .opt.judge-opt.wrong .judge-label { background:#fee2e2; color:#b91c1c; border:1px solid #ef4444; }
-    .opt.judge-opt.picked.ok .judge-label { background:#bbf7d0; color:#15803d; border:1px solid #16a34a; }
+    /* 答对：深绿底 + 粗绿边 + 阴影 + ✓ 图标，强化"对"的视觉 */
+    .opt.judge-opt.correct .judge-label { background:#bbf7d0; color:#15803d; border:2px solid #16a34a; box-shadow:0 4px 12px rgba(22,163,74,.25); font-weight:800; }
+    .opt.judge-opt.correct .judge-label::before { content:'✓  '; color:#15803d; font-weight:900; font-size:18px; }
+    /* 答错：深红底 + 粗红边 + 阴影 + ✗ 图标，强化"错"的视觉 */
+    .opt.judge-opt.wrong .judge-label { background:#fecaca; color:#991b1b; border:2px solid #dc2626; box-shadow:0 4px 12px rgba(220,38,38,.25); font-weight:800; }
+    .opt.judge-opt.wrong .judge-label::before { content:'✗  '; color:#dc2626; font-weight:900; font-size:18px; }
+    .opt.judge-opt.picked.ok .judge-label { background:#bbf7d0; color:#15803d; border:2px solid #16a34a; font-weight:800; }
+    .opt.judge-opt.picked.ok .judge-label::before { content:'✓  '; color:#15803d; font-weight:900; font-size:18px; }
     .hidden { display:none !important; }
     .result { text-align:center; padding: 30px 20px; }
     .result .score { font-size: 46px; font-weight: 700; color: var(--primary); }
