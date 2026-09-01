@@ -27,10 +27,13 @@
     .opt.correct.study .lab { font-weight:700; }
     .opt.wrong { background:#fee2e2; border-color:#ef4444; }
     .opt.sel { border-color: var(--primary); background:#fef3f2; }
-    /* 判断题 lab 用图标代替"正确/错误"文字前缀，避免 value=text 时重复显示 */
-    .opt .judge-lab { color:#15803d; font-weight:700; font-size:18px; line-height:1; letter-spacing:0; width:34px; }
-    .opt.judge-pick .judge-lab { color:#b91c1c; }
-    .opt.picked.ok .judge-lab { color:#15803d; }
+    /* 判断题：value 和 text 都是"正确/错误"，不画圆形 lab，用圆角文字标签居中显示，避免双重显示 */
+    .opt.judge-opt { justify-content:center; padding:14px; }
+    .opt .judge-label { padding:6px 18px; background:#f1f5f9; border-radius:8px; color:var(--text-1); font-weight:700; font-size:16px; line-height:1.4; letter-spacing:.5px; transition:.15s; }
+    .opt.judge-opt.sel .judge-label { background:#fef3f2; color:var(--primary); }
+    .opt.judge-opt.correct .judge-label { background:#dcfce7; color:#15803d; border:1px solid #22c55e; }
+    .opt.judge-opt.wrong .judge-label { background:#fee2e2; color:#b91c1c; border:1px solid #ef4444; }
+    .opt.judge-opt.picked.ok .judge-label { background:#bbf7d0; color:#15803d; border:1px solid #16a34a; }
     .hidden { display:none !important; }
     .result { text-align:center; padding: 30px 20px; }
     .result .score { font-size: 46px; font-weight: 700; color: var(--primary); }
@@ -601,15 +604,16 @@
       var favOn = hasId('xf_fav', q.id)
       var isJudge = q.type === 'judge'
       var opts = q.options.map(function (o) {
-        var lab
         if (isJudge) {
-          // 判断题 value 就是"正确/错误"，重复画两次没意义，用 ✓/✗ 图标代前缀
-          var isOk = o.isCorrect || o.value === '正确'
-          lab = '<span class="lab judge-lab">' + (isOk ? '✓' : '✗') + '</span>'
-        } else {
-          lab = '<span class="lab">' + o.value + '</span>'
+          // 判断题 value 和 text 都是"正确/错误"，合并成一份居中显示，无 ✓/✗ 符号
+          return '<div class="opt judge-opt" data-v="' + o.value + '">' +
+            '<span class="judge-label">' + esc(o.value) + '</span>' +
+            '</div>'
         }
-        return '<div class="opt" data-v="' + o.value + '">' + lab + '<span>' + esc(o.text) + '</span></div>'
+        return '<div class="opt" data-v="' + o.value + '">' +
+          '<span class="lab">' + o.value + '</span>' +
+          '<span>' + esc(o.text) + '</span>' +
+          '</div>'
       }).join('')
       var fav = '<span class="star ' + (favOn ? 'on' : '') + '" id="favStar">' + (favOn ? '★' : '☆') + '</span>'
       $('qBox').innerHTML =
