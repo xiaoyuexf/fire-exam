@@ -276,10 +276,12 @@
     var CHAPTERS = BANK.chapters
     var ALL = []
     CHAPTERS.forEach(function (c) { c.questions.forEach(function (q) { ALL.push(q) }) })
+    // 兼容题库老格式：维保 chapter.type/题目 type 写成 'multi'，监控写成 'multiple'——统一定义为 'multiple'
+    function tnorm(t) { return t === 'multi' ? 'multiple' : t }
     var FREE_PER_TYPE = 10
     var FREE = []
     ;['single', 'multiple', 'judge'].forEach(function (t) {
-      var ch = CHAPTERS.filter(function (c) { return c.type === t })[0]
+      var ch = CHAPTERS.filter(function (c) { return tnorm(c.type) === t })[0]
       if (ch) FREE = FREE.concat(ch.questions.slice(0, FREE_PER_TYPE))
     })
 
@@ -543,14 +545,14 @@
       else if (mode === 'wrong') base = ALL.filter(function (q) { return hasId('xf_wrong', q.id) })
       else if (mode === 'fav') base = ALL.filter(function (q) { return hasId('xf_fav', q.id) })
       else base = ALL
-      if (type && type !== 'all') base = base.filter(function (q) { return q.type === type })
+      if (type && type !== 'all') base = base.filter(function (q) { return tnorm(q.type) === type })
       if (mode === 'random') base = shuffle(base)
       return base
     }
 
     function buildExam() {
       var groups = { single: [], multiple: [], judge: [] }
-      CHAPTERS.forEach(function (c) { groups[c.type] = c.questions.slice() })
+      CHAPTERS.forEach(function (c) { groups[tnorm(c.type)] = c.questions.slice() })
       var picks = []
       EXAM_PLAN.forEach(function (p) {
         var arr = shuffle(groups[p[0]])
