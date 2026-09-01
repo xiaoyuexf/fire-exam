@@ -22,10 +22,12 @@
     .q-type.multiple { background:#ffe6cc; color:#c2410c; }
     .q-type.jemultiple { background:#ffe6cc; color:#c2410c; }
     .q-type.judge { background:#dcfce7; color:#15803d; }
-    .opt.correct { background:#dcfce7; border-color:#22c55e; }
-    .opt.correct.study { background:#bbf7d0; border-color:#16a34a; }
-    .opt.correct.study .lab { font-weight:700; }
-    .opt.wrong { background:#fee2e2; border-color:#ef4444; }
+    .opt.correct { background:#bbf7d0; border:2px solid #16a34a; box-shadow:0 4px 12px rgba(22,163,74,.25); }
+    .opt.correct .lab { background:#16a34a; color:#fff; border-color:#16a34a; font-weight:800; }
+    .opt.correct.study { background:#bbf7d0; border:2px solid #16a34a; box-shadow:0 4px 12px rgba(22,163,74,.25); }
+    .opt.correct.study .lab { font-weight:800; background:#16a34a; color:#fff; border-color:#16a34a; }
+    .opt.wrong { background:#fecaca; border:2px solid #dc2626; box-shadow:0 4px 12px rgba(220,38,38,.25); }
+    .opt.wrong .lab { background:#dc2626; color:#fff; border-color:#dc2626; font-weight:800; }
     .opt.sel { border-color: var(--primary); background:#fef3f2; }
     /* 判断题：左侧 radio 圆 + 右侧"正确/错误"文字，状态通过圆内 ✓/✗ + 整行底色表达 */
     .opt.judge-opt { justify-content:flex-start; padding:14px 16px; gap:14px; }
