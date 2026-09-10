@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -88,7 +88,12 @@ function genCode(direction, months, baseDate) {
   const expire = new Date(base.getFullYear(), base.getMonth() + monthsNum, base.getDate())
   const ymd = '' + expire.getFullYear() + pad2(expire.getMonth() + 1) + pad2(expire.getDate())
   const body = dir + monthsNum + '-' + ymd
-  return body + '-' + checksum(body)
+  const sum = checksum(body)
+  // 加 4 位随机段，保证每次点击都产生不同码（3 段老码已激活的仍可继续用）
+  const chs = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  let rand = ''
+  for (let i = 0; i < 4; i++) rand += chs.charAt(Math.floor(Math.random() * chs.length))
+  return body + '-' + rand + '-' + sum
 }
 
 document.getElementById('gen').addEventListener('click', function () {
