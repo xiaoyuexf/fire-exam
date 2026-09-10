@@ -1,0 +1,102 @@
+{
+  "admin": {
+    "username": "admin",
+    "password": "admin888",
+    "note": "原型默认密码，上线必须改为强密码并接入微信云开发管理员角色校验"
+  },
+  "packages": [
+    {
+      "id": "p_monitor",
+      "name": "监控方向",
+      "direction": "monitor",
+      "price": 9.9,
+      "months": 1,
+      "unit": "/3个月",
+      "popular": false,
+      "active": true
+    },
+    {
+      "id": "p_maintain",
+      "name": "维保方向",
+      "direction": "maintain",
+      "price": 9.9,
+      "months": 1,
+      "unit": "/3个月",
+      "popular": false,
+      "active": true
+    }
+  ],
+  "students": [
+    {
+      "id": "smta24v42f0v7",
+      "openid": "manual_uito79k9",
+      "nickname": "马同学",
+      "phone": "18643777666",
+      "monitorAuth": false,
+      "maintainAuth": true,
+      "vipMonths": 0,
+      "vipExpire": "2026-10-27",
+      "unlockCodes": [
+        "MNTO43AJ4"
+      ],
+      "createdAt": "2026-08-26"
+    }
+  ],
+  "videos": [
+    {
+      "id": "v1",
+      "title": "消防控制室设备识别（监控）",
+      "direction": "monitor",
+      "cover": "",
+      "url": "https://vod.example.com/v1",
+      "free": true,
+      "createdAt": "2026-08-10"
+    }
+  ],
+  "unlockCodes": [
+    {
+      "code": "MNTO43AJ4",
+      "direction": "maintain",
+      "months": 2,
+      "createdAt": "2026-08-26",
+      "usedBy": "smta24v42f0v7",
+      "usedAt": "2026-08-26",
+      "status": "used"
+    },
+    {
+      "code": "MONVYSY89",
+      "direction": "monitor",
+      "months": 3,
+      "createdAt": "2026-08-26",
+      "usedBy": "frontend",
+      "usedAt": "2026-08-26",
+      "status": "used"
+    },
+    {
+      "code": "MONN3ZGXE",
+      "direction": "monitor",
+      "months": 3,
+      "createdAt": "2026-08-26",
+      "usedBy": "frontend",
+      "usedAt": "2026-08-26",
+      "status": "used"
+    },
+    {
+      "code": "MNTT5VKQF",
+      "direction": "maintain",
+      "months": 3,
+      "createdAt": "2026-08-26",
+      "usedBy": null,
+      "usedAt": null,
+      "status": "unused"
+    }
+  ],
+  "contact": {
+    "wechat": "",
+    "phone": "",
+    "qrUrl": "assets/images/qr-wechat.png",
+    "qrHint": "扫码添加老师微信，领取解锁码",
+    "offline": "云南线下实操培训班招生中，小班教学，手把手带练消防设施操作，通过率更有保障。",
+    "icp": ""
+  }
+}
