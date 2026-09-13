@@ -66,7 +66,7 @@
   </div>
 </div>
 
-<script src="assets/js/bank.js?v=20260910"></script>
+<script src="assets/js/bank.js?v=20260913"></script>
 <script src="assets/js/bank_maintain.js"></script>
 <script>
   var TYPE_NAME = { single: '单选题', multiple: '多选题', judge: '判断题' };
@@ -105,12 +105,17 @@
     return (s == null ? '' : String(s)).replace(/\r?\n/g, '').replace(/\s+/g, ' ').trim();
   }
 
-  // 答案完整文本，如 "B（预作用系统）"
+  // 答案完整文本，如 "B（预作用系统）"；判断题直接返回"正确"/"错误"，避免导出成"正确（正确）"
   function answerText(q) {
     var ans = q.answer || '';
+    if (q.type === 'judge') return ans;
     var parts = q.options.filter(function (o) { return ans.indexOf(o.value) >= 0; })
                          .map(function (o) { return o.value + '（' + clean(o.text) + '）'; });
     return parts.length ? parts.join('；') : ans;
+  }
+  // 判断题的 value 与 text 相同（都是"正确"/"错误"），只输出一次
+  function optLine(q, o) {
+    return q.type === 'judge' ? clean(o.text) : o.value + '. ' + clean(o.text);
   }
 
   function toText(list, dirLabel) {
@@ -118,7 +123,7 @@
     list.forEach(function (q, i) {
       s += (i + 1) + '. 【' + TYPE_NAME[q.type] + '】' + clean(q.question) + '\n';
       q.options.forEach(function (o) {
-        s += '   ' + o.value + '. ' + clean(o.text) + '\n';
+        s += '   ' + optLine(q, o) + '\n';
       });
       s += '【答案】' + answerText(q) + '\n';
       if (q.explanation) s += '【解析】' + clean(q.explanation) + '\n';
@@ -139,7 +144,7 @@
       h += '<p><b>' + (i + 1) + '. 【' + TYPE_NAME[q.type] + '】' + esc(clean(q.question)) + '</b></p>';
       q.options.forEach(function (o) {
         var mark = (q.answer || '').indexOf(o.value) >= 0 ? ' <font color="#2f7d4f"><b>●</b></font>' : '';
-        h += '<p style="margin:2px 0 2px 16px;">' + o.value + '. ' + esc(clean(o.text)) + mark + '</p>';
+        h += '<p style="margin:2px 0 2px 16px;">' + esc(optLine(q, o)) + mark + '</p>';
       });
       h += '<p style="margin:2px 0 2px 16px;color:#1d5b38;"><b>答案：</b>' + esc(answerText(q)) + '</p>';
       if (q.explanation) h += '<p style="margin:2px 0 10px 16px;color:#666;"><b>解析：</b>' + esc(clean(q.explanation)) + '</p>';
