@@ -80,6 +80,7 @@
         <div class="small" id="alreadyMsg"></div>
         <a class="btn btn-primary" style="width:100%;max-width:280px;display:block;margin:0 auto" href="practice.html">去刷题 ›</a>
         <span class="re-link" id="reUnlock">使用其他解锁码 ›</span>
+        <span class="re-link" id="logoutBtn" style="display:block;color:#dc2626;margin-top:14px">退出本机授权 ›</span>
       </div>
     </div>
 
@@ -209,6 +210,14 @@
     document.getElementById('reUnlock').addEventListener('click', function () {
       document.getElementById('alreadyUnlocked').classList.add('hidden')
       document.getElementById('unlockForm').classList.remove('hidden')
+    })
+
+    // 退出本机授权：清除本机 localStorage 解锁状态（不影响已发给学员的码），便于复测/换设备
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+      if (!confirm('确定退出本机授权吗？\n退出后需重新输入解锁码才能刷题（不影响已发给学员的码）。')) return
+      localStorage.removeItem('xf_unlock_monitor')
+      localStorage.removeItem('xf_unlock_maintain')
+      location.reload()
     })
 
     // 入口：若带方向参数，激活后跳到对应方向
