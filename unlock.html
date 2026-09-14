@@ -80,7 +80,7 @@
         <div class="small" id="alreadyMsg"></div>
         <a class="btn btn-primary" style="width:100%;max-width:280px;display:block;margin:0 auto" href="practice.html">去刷题 ›</a>
         <span class="re-link" id="reUnlock">使用其他解锁码 ›</span>
-        <span class="re-link" id="logoutBtn" style="display:block;color:#dc2626;margin-top:14px">退出本机授权 ›</span>
+        <span class="re-link" id="logoutBtn" style="display:none;color:#dc2626;margin-top:14px">退出本机授权 ›</span>
       </div>
     </div>
 
@@ -138,6 +138,13 @@
     }
     function fmtDate(d) {
       return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+    }
+
+    // 老师测试模式（?teacher=1 或 ?admin=1）：才显示「退出本机授权」，避免学员误点
+    var IS_TEACHER = new URLSearchParams(location.search).has('teacher') || new URLSearchParams(location.search).has('admin')
+    if (IS_TEACHER) {
+      var logoutBtn = document.getElementById('logoutBtn')
+      if (logoutBtn) logoutBtn.style.display = 'inline-block'
     }
 
     // 小程序模式（?mp=1）：文案改为"加微信发码"，保持后续跳转带 mp
