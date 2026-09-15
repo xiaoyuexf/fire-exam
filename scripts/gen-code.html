@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>激活码生成工具（老师专用，本地使用）</title>
+<title>激活码生成工具（老师专用）</title>
 <style>
   * { box-sizing: border-box; }
   body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f4f8; color: #1f2937; margin: 0; padding: 24px; }
@@ -30,12 +30,16 @@
   .tier-code { font-size: 15px; font-weight: 700; color: #1d4ed8; letter-spacing: .5px; word-break: break-all; flex: 1; margin: 0 10px; }
   .tier-copy { padding: 5px 10px; background: #1d4ed8; color: #fff; border: 0; border-radius: 6px; font-size: 12px; cursor: pointer; white-space: nowrap; }
   .tier-copyall { margin-top: 12px; display: inline-block; padding: 8px 14px; background: #1e3a8a; color: #fff; border: 0; border-radius: 7px; font-size: 13px; cursor: pointer; }
+  .token-box { background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 9px; padding: 10px 12px; font-size: 12px; color: #475569; margin-top: 10px; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>激活码生成工具</h1>
-  <div class="sub">老师本地使用 · 不依赖服务器 · 生成后发给学员</div>
+  <h1>激活码生成工具（老师专用）</h1>
+  <div class="sub">调用后端生成「随机一次性激活码」· 每人一码、用后即失效（N=1）</div>
+
+  <label>管理员令牌（第一次填 admin:admin888，本机会自动记住）</label>
+  <input id="token" type="text" value="" placeholder="admin:admin888" autocomplete="off" />
 
   <label>方向</label>
   <select id="dir">
@@ -45,10 +49,10 @@
   </select>
 
   <label>有效期（月）</label>
-  <input id="months" type="number" min="1" max="24" value="2" />
+  <input id="months" type="number" min="1" max="24" value="3" />
 
-  <label>起始日（默认今天）</label>
-  <input id="start" type="date" />
+  <label>生成数量</label>
+  <input id="count" type="number" min="1" max="50" value="1" />
 
   <button id="gen">生成激活码</button>
 
@@ -58,105 +62,147 @@
     <button class="copy" id="copy">复制激活码</button>
   </div>
 
-  <button class="tier-btn" id="genTier">生成档位样例（1/2/3/6/12 个月）</button>
+  <button class="tier-btn" id="genTier">生成档位样例（1/2/3/6/12 个月各 1 个）</button>
 
   <div class="tier-result" id="tierResult">
     <div id="tierList"></div>
     <button class="tier-copyall" id="copyAll">复制全部档位码</button>
   </div>
 
+  <hr style="margin:26px 0 0;border:0;border-top:1px solid #e5e7eb">
+
+  <h1 style="font-size:16px;margin:22px 0 4px">📥 导入旧激活码（迁移用）</h1>
+  <div class="sub">把昨天已发给学员的旧码（M3-/K2-/B6- 等）粘贴进来，作为「一次性码」保留可用；学员用原码照常激活，体验不变（用一次即失效）。</div>
+
+  <label>这批旧码对应的方向</label>
+  <select id="impDir">
+    <option value="monitor">监控方向</option>
+    <option value="maintain">维保方向</option>
+    <option value="both">监控 + 维保（双方向）</option>
+  </select>
+
+  <label>有效期（月）</label>
+  <input id="impMonths" type="number" min="1" max="24" value="3" />
+
+  <label>旧激活码（每行一个，或逗号 / 空格分隔）</label>
+  <textarea id="impCodes" rows="6" placeholder="M3-20260914-AB12-CD34&#10;K2-20260914-XY98-ZW76&#10;B6-20260914-QQ11-WW22" style="width:100%;padding:11px 12px;border:1px solid #d1d5db;border-radius:9px;font-size:14px;font-family:monospace;resize:vertical"></textarea>
+
+  <button id="importBtn" style="background:#b45309">导入旧码</button>
+
+  <div class="result" id="impResult">
+    <div class="meta" id="impMeta"></div>
+    <div class="code" id="impCodesText" style="font-size:14px;line-height:1.7"></div>
+  </div>
+
   <a href="../unlock.html?teacher=1" style="display:block;margin-top:16px;text-align:center;color:#1d4ed8;font-size:14px;font-weight:600;text-decoration:none;padding:12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px">🧪 测试解锁码是否可用 ›</a>
 
   <div class="warn">
-    提示：激活码算法包含在校件和小程序包内，理论上可被技术逆向推算。因码有时效且你收款后才发放，实际风险低；如要绝对防伪造，需改用后端校验方案。
+    提示：本工具已改为「后端随机码」，码无规律、不可推算，且每人一码用后即失效，可杜绝转发白嫖。
+    请用浏览器打开此页（推荐访问 https://xiaoyuexf.github.io/fire-exam/scripts/gen-code.html），
+    不要直接双击本地文件，否则可能无法调用后端接口。
   </div>
 </div>
 
 <script>
-// ===== 与小程序 utils/code.js 完全一致的算法 =====
-const SALT = 'FXMINI2026'
-const DIR_RMAP = { monitor: 'M', maintain: 'K', both: 'B' }
-function checksum(str) {
-  let h = 0
-  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xffff
-  for (let i = 0; i < SALT.length; i++) h = (h * 31 + SALT.charCodeAt(i)) & 0xffff
-  return h.toString(36).toUpperCase().padStart(4, '0').slice(-4)
-}
-function pad2(n) { return String(n).padStart(2, '0') }
-function genCode(direction, months, baseDate) {
-  const dir = DIR_RMAP[direction] || 'M'
-  const monthsNum = parseInt(months, 10) || 1
-  const base = baseDate ? new Date(baseDate + 'T00:00:00') : new Date()
-  const expire = new Date(base.getFullYear(), base.getMonth() + monthsNum, base.getDate())
-  const ymd = '' + expire.getFullYear() + pad2(expire.getMonth() + 1) + pad2(expire.getDate())
-  const body = dir + monthsNum + '-' + ymd
-  const sum = checksum(body)
-  // 加 4 位随机段，保证每次点击都产生不同码（3 段老码已激活的仍可继续用）
-  const chs = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  let rand = ''
-  for (let i = 0; i < 4; i++) rand += chs.charAt(Math.floor(Math.random() * chs.length))
-  return body + '-' + rand + '-' + sum
+// ⚠️ 后端地址（Cloudflare Pages，国内可访问）
+var WORKER_API = 'https://fire-exam-codes.pages.dev'
+
+// 管理员令牌只存在老师本机浏览器，不写进网页源码（本页是公开可访问的）
+;(function () {
+  var t = document.getElementById('token')
+  try { var saved = localStorage.getItem('xf_admin_token'); if (saved) t.value = saved } catch (e) {}
+  t.addEventListener('change', function () {
+    try { localStorage.setItem('xf_admin_token', t.value.trim()) } catch (e) {}
+  })
+})()
+
+function el(id) { return document.getElementById(id) }
+
+async function callGen(direction, months, count) {
+  const token = el('token').value.trim()
+  const res = await fetch(WORKER_API + '/api/admin/gen-code', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+    body: JSON.stringify({ direction: direction, months: months, count: count })
+  })
+  return res.json()
 }
 
-document.getElementById('gen').addEventListener('click', function () {
-  const direction = document.getElementById('dir').value
-  const months = document.getElementById('months').value
-  const startVal = document.getElementById('start').value
-  const code = genCode(direction, months, startVal || null)
-  const parts = code.split('-')
-  const ymd = parts[1]
-  const expireText = ymd.slice(0, 4) + '-' + ymd.slice(4, 6) + '-' + ymd.slice(6, 8)
-  const dirName = direction === 'monitor' ? '监控' : direction === 'maintain' ? '维保' : '监控+维保'
-  document.getElementById('codeText').textContent = code
-  document.getElementById('metaText').textContent = `方向：${dirName} · 有效期：${months} 个月 · 到期日：${expireText}`
-  document.getElementById('result').classList.add('show')
+document.getElementById('gen').addEventListener('click', async function () {
+  const r = await callGen(el('dir').value, parseInt(el('months').value, 10), parseInt(el('count').value, 10))
+  if (!r.ok) { alert('生成失败：' + (r.msg || '未知错误') + '（请检查令牌和 Worker 地址）'); return }
+  const out = r.data
+  if (out.length === 1) {
+    const c = out[0]
+    el('codeText').textContent = c.code
+    const dirName = c.direction === 'monitor' ? '监控' : c.direction === 'maintain' ? '维保' : '监控+维保'
+    el('metaText').textContent = '方向：' + dirName + ' · 有效期：' + c.months + ' 个月 · 一次性（用后即失效）'
+    el('result').classList.add('show')
+    el('tierResult').classList.remove('show')
+  } else {
+    renderTier(out)
+  }
 })
 
 document.getElementById('copy').addEventListener('click', function () {
-  const t = document.getElementById('codeText').textContent
-  navigator.clipboard.writeText(t).then(function () {
-    alert('已复制：' + t)
-  })
+  const t = el('codeText').textContent
+  navigator.clipboard.writeText(t).then(function () { alert('已复制：' + t) })
 })
 
-// ===== 档位样例：1/2/3/6/12 个月各生成一个码 =====
+// 档位样例：1/2/3/6/12 个月各生成一个码（顺序调用，确保逐个入库）
 const TIER_MONTHS = [1, 2, 3, 6, 12]
-document.getElementById('genTier').addEventListener('click', function () {
-  const direction = document.getElementById('dir').value
-  const startVal = document.getElementById('start').value || null
+document.getElementById('genTier').addEventListener('click', async function () {
+  const direction = el('dir').value
   const dirName = direction === 'monitor' ? '监控' : direction === 'maintain' ? '维保' : '监控+维保'
   const rows = []
   const allCodes = []
-  TIER_MONTHS.forEach(function (m) {
-    const code = genCode(direction, m, startVal)
-    const ymd = code.split('-')[1]
-    const expireText = ymd.slice(0, 4) + '-' + ymd.slice(4, 6) + '-' + ymd.slice(6, 8)
-    rows.push({ m: m, code: code, expireText: expireText })
-    allCodes.push(code)
-  })
-  const list = document.getElementById('tierList')
+  for (const m of TIER_MONTHS) {
+    const r = await callGen(direction, m, 1)
+    if (!r.ok) { alert('档位生成失败（' + m + '个月）：' + (r.msg || '')); return }
+    const c = r.data[0]
+    rows.push({ m: m, code: c.code })
+    allCodes.push(c.code)
+  }
+  const list = el('tierList')
   list.innerHTML = ''
-  rows.forEach(function (r, i) {
+  rows.forEach(function (r) {
     const row = document.createElement('div')
     row.className = 'tier-row'
     row.innerHTML = '<span class="tier-label">' + r.m + '个月</span>' +
-      '<span class="tier-code">' + r.code + '<br><span style="font-size:11px;font-weight:400;color:#64748b">到期 ' + r.expireText + '</span></span>' +
+      '<span class="tier-code">' + r.code + '</span>' +
       '<button class="tier-copy" data-code="' + r.code + '">复制</button>'
     list.appendChild(row)
   })
-  document.getElementById('tierResult').classList.add('show')
-  // 绑定每行复制
+  el('tierResult').classList.add('show')
+  el('result').classList.remove('show')
   list.querySelectorAll('.tier-copy').forEach(function (btn) {
     btn.addEventListener('click', function () {
       const c = btn.getAttribute('data-code')
       navigator.clipboard.writeText(c).then(function () { alert('已复制：' + c) })
     })
   })
-  // 复制全部
-  document.getElementById('copyAll').onclick = function () {
+  el('copyAll').onclick = function () {
     const text = '【' + dirName + '方向】\n' + allCodes.map(function (c, i) { return TIER_MONTHS[i] + '个月：' + c }).join('\n')
     navigator.clipboard.writeText(text).then(function () { alert('已复制全部 ' + allCodes.length + ' 个档位码') })
   }
+})
+
+// 批量导入旧激活码（迁移）：把昨天发的老码导入 KV，作为一次性码保留可用
+document.getElementById('importBtn').addEventListener('click', async function () {
+  const raw = el('impCodes').value
+  const codes = raw.split(/[\n,，;；\s]+/).map(function (s) { return s.trim().toUpperCase() }).filter(Boolean)
+  if (codes.length === 0) { alert('请先粘贴旧激活码'); return }
+  const token = el('token').value.trim()
+  const res = await fetch(WORKER_API + '/api/admin/import-codes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+    body: JSON.stringify({ codes: codes, direction: el('impDir').value, months: parseInt(el('impMonths').value, 10) })
+  })
+  const r = await res.json()
+  if (!r.ok) { alert('导入失败：' + (r.msg || '未知错误') + '（请检查令牌和 Worker 地址）'); return }
+  el('impMeta').textContent = '✓ 成功导入 ' + r.imported + ' 个，跳过（已存在/重复）' + r.skipped + ' 个。这些旧码现在可作为一次性码使用（用后即失效）。'
+  el('impCodesText').textContent = (r.codes || []).join('  ')
+  el('impResult').classList.add('show')
 })
 </script>
 </body>
