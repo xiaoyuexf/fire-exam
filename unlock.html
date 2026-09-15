@@ -116,8 +116,9 @@
   </div>
   </div>
 
-  <script src="lib/code.js?v=20260917"></script>
   <script>
+    // 后端地址：Cloudflare Pages（域名 *.pages.dev，国内可正常访问）
+    var WORKER_API = 'https://fire-exam-codes.pages.dev'
     var input = document.getElementById('codeInput')
     var btn = document.getElementById('verifyBtn')
     var msg = document.getElementById('msg')
@@ -170,8 +171,7 @@
       openQr('长按或扫码添加老师微信，私聊领取解锁码后激活即可刷题')
     })
 
-    // 纯前端校验：与小程序同一套激活码算法（lib/code.js），零服务器依赖
-    // 方向独立：监控码(M)只解监控、维保码(K)只解维保、双方向码(B)同时解两个
+    // 调后端 Worker 校验激活码（一人一码、N=1 限次；旧前端算法码通道已关闭）
     function activate(r) {
       var months = r.months || 1
       var until = addMonths(new Date(), months)
@@ -194,11 +194,20 @@
       var code = input.value.trim()
       if (!code) { msg.textContent = '请输入解锁码'; msg.className = 'unlock-msg err'; return }
       btn.textContent = '验证中...'
-      var r = (window.Code ? Code.verifyCode(code) : { ok: false, msg: '校验模块未加载' })
-      btn.textContent = '激活解锁'
-      if (r.ok) { activate(r); return }
-      msg.textContent = '✗ ' + (r.msg || '激活码无效，请核对后重试') + '（联系老师领取）'
-      msg.className = 'unlock-msg err'
+      fetch(WORKER_API + '/api/unlock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code })
+      }).then(function (r) { return r.json() }).then(function (r) {
+        btn.textContent = '激活解锁'
+        if (r.ok) { activate({ direction: r.direction, months: r.months }); return }
+        msg.textContent = '✗ ' + (r.msg || '激活码无效或已使用') + '（联系老师领取）'
+        msg.className = 'unlock-msg err'
+      }).catch(function () {
+        btn.textContent = '激活解锁'
+        msg.textContent = '✗ 网络错误，请检查网络后重试'
+        msg.className = 'unlock-msg err'
+      })
     }
 
     btn.addEventListener('click', verify)
