@@ -215,3 +215,6 @@ img { display: block; max-width: 100%; }
 
 /* ===== 小程序模式（?mp=1）：隐藏价格与付款入口，仅保留免费试做 + 联系老师 ===== */
 .mp-mode .mp-hide { display: none !important; }
+
+/* ===== 通用工具类：隐藏（unlock.html 等页面靠它切换面板） ===== */
+.hidden { display: none !important; }
