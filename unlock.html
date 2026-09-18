@@ -10,6 +10,9 @@
   <title>解锁题库 · 消防通</title>
   <link rel="stylesheet" href="assets/css/style.css?v=3" />
   <style>
+    /* 通用隐藏类：本页的「已解锁面板 / 未解锁表单」靠它互斥切换，
+       之前 style.css 里缺这条定义，导致未解锁的学员也会看到绿色「已解锁」面板 */
+    .hidden { display: none !important; }
     .unlock-wrap { padding: 54px 22px 30px; text-align: center; }
     .pay-box { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 18px 16px; margin: 0 0 18px; text-align: center; }
     .pay-box h3 { font-size: 16px; margin: 0 0 4px; }
