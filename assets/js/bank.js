@@ -540,12 +540,12 @@ window.BANK = {
             },
             {
               "value": "B",
-              "text": "≥0.1MPa,",
+              "text": "≥0.1MPa",
               "isCorrect": false
             },
             {
               "value": "C",
-              "text": "≥0.15MPa93",
+              "text": "≥0.15MPa",
               "isCorrect": false
             },
             {
@@ -22078,4 +22078,4 @@ window.BANK = {
       ]
     }
   ]
-};
+}
