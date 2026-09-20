@@ -3510,11 +3510,6 @@ window.BANK = {
               "value": "D",
               "text": "IG-04",
               "isCorrect": false
-            },
-            {
-              "value": "E",
-              "text": "共日超柜",
-              "isCorrect": false
             }
           ],
           "answer": "A",
@@ -6037,11 +6032,6 @@ window.BANK = {
             {
               "value": "D",
               "text": "烘干",
-              "isCorrect": false
-            },
-            {
-              "value": "E",
-              "text": "进超柜",
               "isCorrect": false
             }
           ],
