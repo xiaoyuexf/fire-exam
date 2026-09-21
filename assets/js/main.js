@@ -22,13 +22,25 @@
     document.getElementById('qrMask').addEventListener('click', function () { m.classList.remove('show') })
   })()
 
-  // 已解锁时：把所有「去解锁」入口直接改为「去刷题」，避免重复输码（按方向独立判断）
+  // 首页「去解锁」入口的落点（监控 / 维保 按方向独立判断）：
+  //   两个方向都已解锁 → 一律改成「去刷题」，避免重复输码
+  //   只解锁了一个方向 → 仍要能进解锁页（否则买不了另一个方向），并带上未解锁方向，让页面明确提示
+  //   一个都没解锁   → 保持原样
   function dirActive(d) {
     try { var u = JSON.parse(localStorage.getItem('xf_unlock_' + d) || 'null'); return !!(u && u.untilTs && new Date().getTime() < u.untilTs) } catch (e) { return false }
   }
-  function isUnlocked() { return dirActive('monitor') || dirActive('maintain') }
-  if (isUnlocked()) {
-    document.querySelectorAll('a[href="unlock.html"]').forEach(function (a) { a.href = 'practice.html' })
+  var missDirs = []
+  if (!dirActive('monitor')) missDirs.push('monitor')
+  if (!dirActive('maintain')) missDirs.push('maintain')
+  // 匹配所有指向解锁页的入口（含原本已带 ?direction= 的，统一改写；老师专用 ?teacher=1 的链接不动）
+  var unlockLinks = []
+  document.querySelectorAll('a[href^="unlock.html"]').forEach(function (a) {
+    if (a.getAttribute('href').indexOf('teacher=') === -1) unlockLinks.push(a)
+  })
+  if (!missDirs.length) {
+    unlockLinks.forEach(function (a) { a.href = 'practice.html' })
+  } else if (missDirs.length === 1) {
+    unlockLinks.forEach(function (a) { a.href = 'unlock.html?direction=' + missDirs[0] })
   }
 
   // 联系方式（微信号、电话可选显示，默认隐藏；有内容时自动渲染在二维码下方）

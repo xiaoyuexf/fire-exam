@@ -76,12 +76,14 @@
     <h2>解锁完整版题库</h2>
     <p id="unlockSub">添加老师微信领解锁码 → 输码激活，即可畅刷完整题库</p>
 
-    <!-- 已解锁：直接去刷题 -->
+    <!-- 已解锁面板：只要有任一方向已解锁就显示（列出已解锁的方向与到期日）
+         ⚠️ 注意：它与下方「输码表单」不再互斥。若只解锁了一个方向，本面板与表单会同时显示，
+         否则学员没法给另一个方向输入解锁码（历史 bug：已解锁维保后再买监控，找不到输码框）。 -->
     <div id="alreadyUnlocked" class="hidden">
       <div class="already">
-        <div class="big">✅ 您已解锁完整版题库</div>
+        <div class="big" id="alreadyTitle">✅ 您已解锁完整版题库</div>
         <div class="small" id="alreadyMsg"></div>
-        <a class="btn btn-primary" style="width:100%;max-width:280px;display:block;margin:0 auto" href="practice.html">去刷题 ›</a>
+        <a class="btn btn-primary" style="width:100%;max-width:280px;display:block;margin:0 auto" href="practice.html" id="goPractice">去刷题 ›</a>
         <span class="re-link" id="reUnlock" style="display:none">使用其他解锁码 ›</span>
         <span class="re-link" id="logoutBtn" style="display:none;color:#dc2626;margin-top:14px">退出本机授权 ›</span>
       </div>
@@ -129,8 +131,8 @@
     // 本地解锁状态（与 practice.html 同口径，兼容 until / untilTs 两种存储格式）
     function getDirUnlock(d) { try { return JSON.parse(localStorage.getItem('xf_unlock_' + d) || 'null') } catch (e) { return null } }
     function dirActive(d) { var u = getDirUnlock(d); return !!(u && u.untilTs && new Date().getTime() < u.untilTs) }
-    function getUnlock() { return { monitor: getDirUnlock('monitor'), maintain: getDirUnlock('maintain') } }
-    function isUnlocked() { return dirActive('monitor') || dirActive('maintain') }
+    // 注意：不再用"任一方向已解锁就整页切换"的粗判断，
+    // 方向级的判断统一走下面的 unlockedDirs() / missingDirs()
 
     // 统一会员有效期算法：激活成功这一刻起算 + N 个日历月（月末归位，避免 setMonth 边界 bug）
     function addMonths(date, months) {
@@ -217,17 +219,73 @@
 
     input.addEventListener('keydown', function (e) { if (e.key === 'Enter') verify() })
 
-    // 已解锁：直接展示「去刷题」，不再要求重复输入解锁码
-    function showAlready() {
-      var u = getUnlock()
-      var parts = []
-      if (u.monitor && u.monitor.untilTs && new Date().getTime() < u.monitor.untilTs) { var m = new Date(u.monitor.untilTs); parts.push('监控方向（至 ' + fmtDate(m) + '）') }
-      if (u.maintain && u.maintain.untilTs && new Date().getTime() < u.maintain.untilTs) { var w = new Date(u.maintain.untilTs); parts.push('维保方向（至 ' + fmtDate(w) + '）') }
-      document.getElementById('alreadyMsg').textContent =
-        '当前已解锁：' + (parts.length ? parts.join('、') : '无') + '。点击下方按钮即可直接刷题，无需再次输入解锁码。'
-      document.getElementById('unlockForm').classList.add('hidden')
-      document.getElementById('alreadyUnlocked').classList.remove('hidden')
+    // ===== 解锁状态渲染（监控 / 维保 按方向独立判断）=====
+    var DIR_NAME = { monitor: '监控', maintain: '维保' }
+    var DIR_ORDER = ['monitor', 'maintain']
+    function dirName(d) { return DIR_NAME[d] || d }
+    function unlockedDirs() {
+      var out = []
+      for (var i = 0; i < DIR_ORDER.length; i++) if (dirActive(DIR_ORDER[i])) out.push(DIR_ORDER[i])
+      return out
     }
+    function missingDirs() {
+      var out = []
+      for (var i = 0; i < DIR_ORDER.length; i++) if (!dirActive(DIR_ORDER[i])) out.push(DIR_ORDER[i])
+      return out
+    }
+
+    // 渲染规则（关键：两个区块「按需共存」，不再整页互斥）：
+    //   任一方向已解锁   → 显示绿色面板（写明已解锁哪个方向、到几号）
+    //   还有方向未解锁   → 保留输码表单，并把步骤文案改成「你还需要解锁：X方向」
+    //   两个方向都解锁   → 才收起表单
+    // 这样「已买监控想再买维保」「已买维保想再买监控」都始终有地方输码。
+    function renderUnlockState() {
+      var unlocked = unlockedDirs()
+      var missing = missingDirs()
+      var alreadyBox = document.getElementById('alreadyUnlocked')
+      var formBox = document.getElementById('unlockForm')
+
+      if (unlocked.length) {
+        var parts = []
+        for (var i = 0; i < unlocked.length; i++) {
+          var u = getDirUnlock(unlocked[i])
+          parts.push(dirName(unlocked[i]) + '方向（至 ' + fmtDate(new Date(u.untilTs)) + '）')
+        }
+        var missText = missing.length ? missing.map(dirName).join('、') + '方向' : ''
+        document.getElementById('alreadyTitle').textContent = missing.length
+          ? '✅ 已解锁：' + parts.join('、')
+          : '✅ 您已解锁完整版题库'
+        document.getElementById('alreadyMsg').textContent = missing.length
+          ? '当前已解锁：' + parts.join('、') + '。若还需解锁' + missText + '，请在下方输入该方向的解锁码。'
+          : '当前已解锁：' + parts.join('、') + '。点击下方按钮即可直接刷题，无需再次输入解锁码。'
+        // 「去刷题」落点：只解锁一个方向时直接进该方向，避免进到未解锁的方向
+        var goQ = []
+        if (unlocked.length === 1) goQ.push('direction=' + unlocked[0])
+        if (IS_MP) goQ.push('mp=1')
+        document.getElementById('goPractice').setAttribute('href', 'practice.html' + (goQ.length ? '?' + goQ.join('&') : ''))
+        alreadyBox.classList.remove('hidden')
+      } else {
+        document.getElementById('alreadyTitle').textContent = '✅ 您已解锁完整版题库'
+        alreadyBox.classList.add('hidden')
+      }
+
+      if (missing.length) {
+        formBox.classList.remove('hidden')
+        // 能确定要解锁哪个方向时（只剩一个未解锁，或网址带 direction 参数），把步骤文案改成针对该方向
+        var target = missing.length === 1
+          ? missing[0]
+          : (PREFER_DIR && missing.indexOf(PREFER_DIR) !== -1 ? PREFER_DIR : '')
+        if (target) {
+          document.getElementById('unlockStep').innerHTML =
+            '<b>您还需要解锁：' + dirName(target) + '方向</b><br/>' +
+            '<b>第 1 步</b>　若还没有' + dirName(target) + '方向的解锁码，点上方按钮添加老师微信领取。<br/>' +
+            '<b>第 2 步</b>　在下方输入' + dirName(target) + '方向的解锁码，激活后即可畅刷' + dirName(target) + '题库，<b>无需再次登录</b>。'
+        }
+      } else {
+        formBox.classList.add('hidden')
+      }
+    }
+
     document.getElementById('reUnlock').addEventListener('click', function () {
       document.getElementById('alreadyUnlocked').classList.add('hidden')
       document.getElementById('unlockForm').classList.remove('hidden')
@@ -241,11 +299,13 @@
       location.reload()
     })
 
-    // 入口：若带方向参数，激活后跳到对应方向
+    // 入口：网址可带 direction=monitor / maintain（从练习页「解锁另一个方向」跳来时带的），
+    // 用来把页面提示聚焦到该方向，避免学员"不知道该输哪个方向的码"
     var up = new URLSearchParams(location.search)
     var ud = (up.get('direction') || '').toLowerCase()
+    var PREFER_DIR = (ud === 'monitor' || ud === 'maintain') ? ud : ''
 
-    if (isUnlocked()) showAlready()
+    renderUnlockState()
   </script>
 </body>
 </html>
