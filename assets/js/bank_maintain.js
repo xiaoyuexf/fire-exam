@@ -627,7 +627,7 @@ window.BANK = {
             },
             {
               "value": "B",
-              "text": "火灾预警系统灭灭预警系统",
+              "text": "火灾预警系统",
               "isCorrect": false
             },
             {
@@ -3150,12 +3150,12 @@ window.BANK = {
             },
             {
               "value": "B",
-              "text": "≥0.1MPa,",
+              "text": "≥0.1MPa",
               "isCorrect": false
             },
             {
               "value": "C",
-              "text": "≥0.15MPa93",
+              "text": "≥0.15MPa",
               "isCorrect": false
             },
             {
@@ -3179,7 +3179,7 @@ window.BANK = {
             },
             {
               "value": "B",
-              "text": "职业道德物",
+              "text": "职业道德",
               "isCorrect": false
             },
             {
@@ -13266,7 +13266,7 @@ window.BANK = {
             },
             {
               "value": "C",
-              "text": "选中文件(夹)选中文件 (夹)",
+              "text": "选中文件(夹)",
               "isCorrect": true
             },
             {
@@ -14907,7 +14907,7 @@ window.BANK = {
             },
             {
               "value": "B",
-              "text": "移动式消防炮系统网",
+              "text": "移动式消防炮系统",
               "isCorrect": true
             },
             {
@@ -16155,7 +16155,7 @@ window.BANK = {
             },
             {
               "value": "D",
-              "text": "条件充许时,可派人至就近消防站报警",
+              "text": "条件允许时,可派人至就近消防站报警",
               "isCorrect": true
             },
             {
